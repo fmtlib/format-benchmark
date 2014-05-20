@@ -108,7 +108,7 @@ echo "return 0; }" >> ${prefix}main.cpp
 
 
 # Compile
-time g++ ${prefix}???.cpp ${prefix}main.cpp $* -o ${prefix}.out
+time g++ -std=c++11 ${prefix}???.cpp ${prefix}main.cpp $* -o ${prefix}.out
 ls -sh ${prefix}.out
 strip ${prefix}.out
 ls -sh ${prefix}.out
