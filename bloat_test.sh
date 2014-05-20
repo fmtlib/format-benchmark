@@ -4,6 +4,7 @@
 # tinyformat, vs alternatives.  Call as
 #
 # C99 printf            :  bloat_test.sh [-O3]
+# C++ Format            :  bloat_test.sh [-O3] -DUSE_CPPFORMAT
 # tinyformat            :  bloat_test.sh [-O3] -DUSE_TINYFORMAT
 # tinyformat, no inlines:  bloat_test.sh [-O3] -DUSE_TINYFORMAT -DUSE_TINYFORMAT_NOINLINE
 # boost::format         :  bloat_test.sh [-O3] -DUSE_BOOST
@@ -35,17 +36,17 @@ void doFormat_a()
     std::cout << boost::format("%s:%d:%d:%d:%s\n") % "somefile.cpp"% 42% 1% 2% "asdf";
 }
 
-#elif defined(USE_FORMAT)
+#elif defined(USE_CPPFORMAT)
 
 #include "../format.h"
 
 void doFormat_a()
 {
-    fmt::Print("{0}\n") << "somefile.cpp";
-    fmt::Print("{0}:{1}\n") << "somefile.cpp" << 42;
-    fmt::Print("{0}:{1}:{2}\n") << "somefile.cpp" << 42 << "asdf";
-    fmt::Print("{0}:{1}:{2}:{3}\n") << "somefile.cpp" << 42 << 1 << "asdf";
-    fmt::Print("{0}:{1}:{2}:{3}:{4}\n") << "somefile.cpp" << 42 << 1 << 2 << "asdf";
+    fmt::Print("{}\n", "somefile.cpp");
+    fmt::Print("{}:{}\n", "somefile.cpp", 42);
+    fmt::Print("{}:{}:{}\n", "somefile.cpp", 42, "asdf");
+    fmt::Print("{}:{}:{}:{}\n", "somefile.cpp", 42, 1, "asdf");
+    fmt::Print("{}:{}:{}:{}:{}\n", "somefile.cpp", 42, 1, 2, "asdf");
 }
 
 #elif defined(USE_IOSTREAMS)
