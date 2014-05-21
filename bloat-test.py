@@ -133,7 +133,7 @@ def benchmark(flags):
   if os.path.exists(output_filename):
     os.remove(output_filename)
   command = 'check_call({})'.format(
-    [compiler_path, '-std=c++11', '-o', output_filename] + flags + sources)
+    [compiler_path, '-std=c++11', '-o', output_filename] + sources + flags)
   result = Result()
   result.time = timeit(
     command, setup = 'from subprocess import check_call', number = 1)
@@ -143,28 +143,39 @@ def benchmark(flags):
   check_call(['strip', output_filename])
   result.stripped_size = os.stat(output_filename).st_size
   print('Stripped size: {}B'.format(result.stripped_size))
+  sys.stdout.flush()
   return result
 
+configs = [
+  ('Debug',     []),
+  ('Optimized', ['-O3'])
+]
+
 methods = [
-  ('printf'      , None),
-  ('IOStreams'   , '-DUSE_IOSTREAMS'),
-  ('C++ Format'  , '-DUSE_CPPFORMAT'),
-  ('Boost Format', '-DUSE_BOOST'),
-  ('tinyformat'  , '-DUSE_TINYFORMAT')
+  ('printf'      , []),
+  ('IOStreams'   , ['-DUSE_IOSTREAMS']),
+  ('C++ Format'  , ['-DUSE_CPPFORMAT', '-L..', '-lformat']),
+  ('tinyformat'  , ['-DUSE_TINYFORMAT']),
+  ('Boost Format', ['-DUSE_BOOST'])
 ]
 
 NUM_RUNS = 3
-results = {}
-for i in range(NUM_RUNS):
-  for method, flags in methods:
-    print('Benchmarking', method)
-    new_result = benchmark([flags] if flags else [])
-    if method not in results:
-      results[method] = new_result
-      continue
-    old_result = results[method]
-    old_result.time = min(old_result.time, new_result.time)
-    if new_result.size != old_result.size or \
-       new_result.stripped_size != old_result.stripped_size:
-      raise Exception('size mismatch')
-print(results)
+for config, flags in configs:
+  results = {}
+  for i in range(NUM_RUNS):
+    for method, method_flags in methods:
+      print('Benchmarking', config, method)
+      sys.stdout.flush()
+      new_result = benchmark(flags + method_flags)
+      if method not in results:
+        results[method] = new_result
+        continue
+      old_result = results[method]
+      old_result.time = min(old_result.time, new_result.time)
+      if new_result.size != old_result.size or \
+         new_result.stripped_size != old_result.stripped_size:
+        raise Exception('size mismatch')
+  print(config, 'Results:')
+  for method, method_flags in methods:
+    result = results[method]
+    print(method, result.time, result.size, result.stripped_size)
