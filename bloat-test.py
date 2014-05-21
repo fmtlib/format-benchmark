@@ -113,13 +113,26 @@ with nested(open(main_source, 'w'), open(main_header, 'w')) as \
 def get_size_kb(filename):
   return int(round(os.stat(output_filename).st_size / 1024.0))
 
+# Find compiler.
+compiler_path = None
+for path in os.getenv('PATH').split(os.pathsep):
+  filename = os.path.join(path, 'g++')
+  if os.path.exists(filename):
+    if os.path.islink(filename) and \
+       os.path.basename(os.path.realpath(filename)) == 'ccache':
+      # Don't use ccache.
+      print('Ignoring ccache link at', filename)
+      continue
+    compiler_path = filename
+    break
+print('Using compiler', filename)
+
 # Compile.
-# TODO: check that g++ is not a cache
 output_filename = prefix + '.out'
 if os.path.exists(output_filename):
   os.remove(output_filename)
 command = 'check_call({})'.format(
-  ['g++', '-std=c++11', '-o', output_filename] + sys.argv[1:] + sources)
+  [compiler_path, '-std=c++11', '-o', output_filename] + sys.argv[1:] + sources)
 print('Compile time:',
   timeit(command, setup = 'from subprocess import check_call', number = 1))
 print('Size:', get_size_kb(output_filename), 'KiB')
