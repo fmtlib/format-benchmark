@@ -110,9 +110,6 @@ with nested(open(main_source, 'w'), open(main_header, 'w')) as \
     header_file.write('void ' + func_name + '();\n')
   main_file.write('}')
 
-def get_size_kb(filename):
-  return int(round(os.stat(output_filename).st_size / 1024.0))
-
 # Find compiler.
 compiler_path = None
 for path in os.getenv('PATH').split(os.pathsep):
@@ -127,14 +124,47 @@ for path in os.getenv('PATH').split(os.pathsep):
     break
 print('Using compiler', filename)
 
+class Result:
+  pass
+
 # Compile.
-output_filename = prefix + '.out'
-if os.path.exists(output_filename):
-  os.remove(output_filename)
-command = 'check_call({})'.format(
-  [compiler_path, '-std=c++11', '-o', output_filename] + sys.argv[1:] + sources)
-print('Compile time:',
-  timeit(command, setup = 'from subprocess import check_call', number = 1))
-print('Size:', get_size_kb(output_filename), 'KiB')
-check_call(['strip', output_filename])
-print('Stripped size:', get_size_kb(output_filename), 'KiB')
+def benchmark(flags):
+  output_filename = prefix + '.out'
+  if os.path.exists(output_filename):
+    os.remove(output_filename)
+  command = 'check_call({})'.format(
+    [compiler_path, '-std=c++11', '-o', output_filename] + flags + sources)
+  result = Result()
+  result.time = timeit(
+    command, setup = 'from subprocess import check_call', number = 1)
+  print('Compile time: {:.2f}s'.format(result.time))
+  result.size = os.stat(output_filename).st_size
+  print('Size: {}B'.format(result.size))
+  check_call(['strip', output_filename])
+  result.stripped_size = os.stat(output_filename).st_size
+  print('Stripped size: {}B'.format(result.stripped_size))
+  return result
+
+methods = [
+  ('printf'      , None),
+  ('IOStreams'   , '-DUSE_IOSTREAMS'),
+  ('C++ Format'  , '-DUSE_CPPFORMAT'),
+  ('Boost Format', '-DUSE_BOOST'),
+  ('tinyformat'  , '-DUSE_TINYFORMAT')
+]
+
+NUM_RUNS = 3
+results = {}
+for i in range(NUM_RUNS):
+  for method, flags in methods:
+    print('Benchmarking', method)
+    new_result = benchmark([flags] if flags else [])
+    if method not in results:
+      results[method] = new_result
+      continue
+    old_result = results[method]
+    old_result.time = min(old_result.time, new_result.time)
+    if new_result.size != old_result.size or \
+       new_result.stripped_size != old_result.stripped_size:
+      raise Exception('size mismatch')
+print(results)
