@@ -1,12 +1,12 @@
 //  Copyright (c) 2001-2010 Hartmut Kaiser
-// 
-//  Distributed under the Boost Software License, Version 1.0. (See accompanying 
+//
+//  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 #include <climits>
 #include <cstdlib>
 
-#include <iostream> 
+#include <iostream>
 #include <sstream>
 #include <limits>       // std::numeric_limits
 #include <algorithm>    // std::reverse
@@ -14,11 +14,11 @@
 
 #include "high_resolution_timer.hpp"
 
-#include "../format.h"
+#include "cppformat/format.h"
 
-//  This value specifies, how to unroll the integer string generation loop in 
+//  This value specifies, how to unroll the integer string generation loop in
 //  Karma.
-//      Set this to some integer in between 0 (no unrolling) and max expected 
+//      Set this to some integer in between 0 (no unrolling) and max expected
 //      integer string len (complete unrolling). If not specified, this value
 //      defaults to 6.
 #define BOOST_KARMA_NUMERICS_LOOP_UNROLL 6
@@ -28,7 +28,7 @@
 namespace cppx {
     using std::numeric_limits;
     using std::reverse;
-    
+
     typedef numeric_limits<long>    Long_info;
     int const long_digits   = Long_info::max_digits10;
     int const long_bufsize  = long_digits + 2;
@@ -117,7 +117,7 @@ int main()
 {
     namespace karma = boost::spirit::karma;
 
-    cout << "Converting " << MAX_ITERATION 
+    cout << "Converting " << MAX_ITERATION
          << " randomly generated int values to strings." << flush << endl;
 
     std::srand(0);
@@ -426,7 +426,6 @@ int main()
         double time = t.elapsed();
         Report("itostr", str, v, time, size);
     }
-    
+
     return 0;
 }
-

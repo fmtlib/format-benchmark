@@ -29,7 +29,7 @@ void doFormat_a() {
 
 #elif defined(USE_CPPFORMAT)
 
-#include "../format.h"
+#include "cppformat/format.h"
 
 void doFormat_a() {
   fmt::Print("{}\n", "somefile.cpp");
@@ -147,7 +147,7 @@ configs = [
 methods = [
   ('printf'      , []),
   ('IOStreams'   , ['-DUSE_IOSTREAMS']),
-  ('C++ Format'  , ['-DUSE_CPPFORMAT', '-L..', '-lformat']),
+  ('C++ Format'  , ['-DUSE_CPPFORMAT', '-Lcppformat', '-lformat']),
   ('tinyformat'  , ['-DUSE_TINYFORMAT']),
   ('Boost Format', ['-DUSE_BOOST'])
 ]
