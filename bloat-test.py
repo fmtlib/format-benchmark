@@ -1,14 +1,7 @@
 #!/usr/bin/env python
 
 # Script to test how much bloating a large project will suffer when using
-# different formatting methods.  Call as
-#
-# C99 printf            :  bloat-test.py [-O3]
-# C++ Format            :  bloat-test.py [-O3] -DUSE_CPPFORMAT
-# tinyformat            :  bloat-test.py [-O3] -DUSE_TINYFORMAT
-# boost::format         :  bloat-test.py [-O3] -DUSE_BOOST
-# std::iostream         :  bloat-test.py [-O3] -DUSE_IOSTREAMS
-#
+# different formatting methods.
 # Based on bloat_test.sh from https://github.com/c42f/tinyformat.
 
 from __future__ import print_function
@@ -18,20 +11,20 @@ from glob import glob
 from subprocess import check_call
 from timeit import timeit
 
-template = '''
+template = r'''
 #ifdef USE_BOOST
 
 #include <boost/format.hpp>
 #include <iostream>
 
 void doFormat_a() {
-  std::cout << boost::format("%s\\n") % "somefile.cpp";
-  std::cout << boost::format("%s:%d\\n") % "somefile.cpp" % 42;
-  std::cout << boost::format("%s:%d:%s\\n") % "somefile.cpp" % 42 % "asdf";
+  std::cout << boost::format("%s\n") % "somefile.cpp";
+  std::cout << boost::format("%s:%d\n") % "somefile.cpp" % 42;
+  std::cout << boost::format("%s:%d:%s\n") % "somefile.cpp" % 42 % "asdf";
   std::cout <<
-    boost::format("%s:%d:%d:%s\\n") % "somefile.cpp" % 42 % 1 % "asdf";
+    boost::format("%s:%d:%d:%s\n") % "somefile.cpp" % 42 % 1 % "asdf";
   std::cout <<
-    boost::format("%s:%d:%d:%d:%s\\n") % "somefile.cpp" % 42 % 1 % 2 % "asdf";
+    boost::format("%s:%d:%d:%d:%s\n") % "somefile.cpp" % 42 % 1 % 2 % "asdf";
 }
 
 #elif defined(USE_CPPFORMAT)
@@ -39,11 +32,11 @@ void doFormat_a() {
 #include "../format.h"
 
 void doFormat_a() {
-  fmt::Print("{}\\n", "somefile.cpp");
-  fmt::Print("{}:{}\\n", "somefile.cpp", 42);
-  fmt::Print("{}:{}:{}\\n", "somefile.cpp", 42, "asdf");
-  fmt::Print("{}:{}:{}:{}\\n", "somefile.cpp", 42, 1, "asdf");
-  fmt::Print("{}:{}:{}:{}:{}\\n", "somefile.cpp", 42, 1, 2, "asdf");
+  fmt::Print("{}\n", "somefile.cpp");
+  fmt::Print("{}:{}\n", "somefile.cpp", 42);
+  fmt::Print("{}:{}:{}\n", "somefile.cpp", 42, "asdf");
+  fmt::Print("{}:{}:{}:{}\n", "somefile.cpp", 42, 1, "asdf");
+  fmt::Print("{}:{}:{}:{}:{}\n", "somefile.cpp", 42, 1, 2, "asdf");
 }
 
 #elif defined(USE_IOSTREAMS)
@@ -51,11 +44,11 @@ void doFormat_a() {
 #include <iostream>
 
 void doFormat_a() {
-  std::cout << "somefile.cpp" << "\\n";
-  std::cout << "somefile.cpp" << 42 << "\\n";
-  std::cout << "somefile.cpp" << 42 << "asdf" << "\\n";
-  std::cout << "somefile.cpp" << 42 << 1 << "asdf" << "\\n";
-  std::cout << "somefile.cpp" << 42 << 1 << 2 << "asdf" << "\\n";
+  std::cout << "somefile.cpp" << "\n";
+  std::cout << "somefile.cpp" << 42 << "\n";
+  std::cout << "somefile.cpp" << 42 << "asdf" << "\n";
+  std::cout << "somefile.cpp" << 42 << 1 << "asdf" << "\n";
+  std::cout << "somefile.cpp" << 42 << 1 << 2 << "asdf" << "\n";
 }
 
 #else
@@ -68,11 +61,11 @@ void doFormat_a() {
 # endif
 
 void doFormat_a() {
-  PRINTF("%s\\n", "somefile.cpp");
-  PRINTF("%s:%d\\n", "somefile.cpp", 42);
-  PRINTF("%s:%d:%s\\n", "somefile.cpp", 42, "asdf");
-  PRINTF("%s:%d:%d:%s\\n", "somefile.cpp", 42, 1, "asdf");
-  PRINTF("%s:%d:%d:%d:%s\\n", "somefile.cpp", 42, 1, 2, "asdf");
+  PRINTF("%s\n", "somefile.cpp");
+  PRINTF("%s:%d\n", "somefile.cpp", 42);
+  PRINTF("%s:%d:%s\n", "somefile.cpp", 42, "asdf");
+  PRINTF("%s:%d:%d:%s\n", "somefile.cpp", 42, 1, "asdf");
+  PRINTF("%s:%d:%d:%d:%s\n", "somefile.cpp", 42, 1, 2, "asdf");
 }
 #endif
 '''
@@ -139,16 +132,16 @@ def benchmark(flags):
     command, setup = 'from subprocess import check_call', number = 1)
   print('Compile time: {:.2f}s'.format(result.time))
   result.size = os.stat(output_filename).st_size
-  print('Size: {}B'.format(result.size))
+  print('Size: {}'.format(result.size))
   check_call(['strip', output_filename])
   result.stripped_size = os.stat(output_filename).st_size
-  print('Stripped size: {}B'.format(result.stripped_size))
+  print('Stripped size: {}'.format(result.stripped_size))
   sys.stdout.flush()
   return result
 
 configs = [
-  ('Debug',     []),
-  ('Optimized', ['-O3'])
+  ('Optimized', ['-O3']),
+  ('Debug',     [])
 ]
 
 methods = [
