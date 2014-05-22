@@ -152,6 +152,36 @@ methods = [
   ('Boost Format', ['-DUSE_BOOST'])
 ]
 
+def format_field(field, format = '', width = ''):
+  return '{:{}{}}'.format(field, width, format)
+
+def print_rulers(widths):
+  for w in widths:
+    print('=' * w, end = ' ')
+  print()
+
+# Prints a reStructuredText table.
+def print_table(table, *formats):
+  widths = [len(i) for i in table[0]]
+  for row in table[1:]:
+    for i in range(len(row)):
+      widths[i] = max(widths[i], len(format_field(row[i], formats[i])))
+  print_rulers(widths)
+  row = table[0]
+  for i in range(len(row)):
+    print(format_field(row[i], '', widths[i]), end = ' ')
+  print()
+  print_rulers(widths)
+  for row in table[1:]:
+    for i in range(len(row)):
+      print(format_field(row[i], formats[i], widths[i]), end = ' ')
+    print()
+  print_rulers(widths)
+
+# Converts n to kibibytes.
+def to_kib(n):
+  return int(round(n / 1024.0))
+
 NUM_RUNS = 3
 for config, flags in configs:
   results = {}
@@ -169,6 +199,13 @@ for config, flags in configs:
          new_result.stripped_size != old_result.stripped_size:
         raise Exception('size mismatch')
   print(config, 'Results:')
+  table = [
+    ('Method', 'Compile Time, s', 'Executable size, KiB', 'Stripped size, KiB')
+  ]
   for method, method_flags in methods:
     result = results[method]
-    print(method, result.time, result.size, result.stripped_size)
+    table.append(
+      (method, result.time, to_kib(result.size), to_kib(result.stripped_size)))
+  print_table(table, '', '.1f', '', '')
+
+# TODO: compare output
