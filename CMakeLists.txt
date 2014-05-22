@@ -5,6 +5,11 @@ project(FORMAT_BENCHMARKS)
 include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag(-std=c++11 HAVE_STD_CPP11_FLAG)
 
+# Use shared cppformat library to make comparison with IOStreams and printf
+# fair as these use shared libraries too (libstdc++ and libc).
+set(FMT_SHARED ON) # CACHE BOOL "Build shared library instead of static one")
+add_subdirectory(cppformat)
+
 find_package(Boost)
 if (Boost_FOUND)
   if (HAVE_STD_CPP11_FLAG)
