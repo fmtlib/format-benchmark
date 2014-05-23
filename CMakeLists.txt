@@ -23,3 +23,5 @@ if (Boost_FOUND)
   endif ()
   add_definitions(-DHAVE_BOOST)
 endif ()
+
+add_custom_target(bloat-test COMMAND ./bloat-test.py DEPENDS format)
