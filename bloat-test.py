@@ -8,7 +8,7 @@ from __future__ import print_function
 import os, re, sys
 from contextlib import nested
 from glob import glob
-from subprocess import check_call
+from subprocess import check_call, Popen, PIPE
 from timeit import timeit
 
 template = r'''
@@ -45,10 +45,10 @@ void doFormat_a() {
 
 void doFormat_a() {
   std::cout << "somefile.cpp" << "\n";
-  std::cout << "somefile.cpp" << 42 << "\n";
-  std::cout << "somefile.cpp" << 42 << "asdf" << "\n";
-  std::cout << "somefile.cpp" << 42 << 1 << "asdf" << "\n";
-  std::cout << "somefile.cpp" << 42 << 1 << 2 << "asdf" << "\n";
+  std::cout << "somefile.cpp:" << 42 << "\n";
+  std::cout << "somefile.cpp:" << 42 << ":asdf" << "\n";
+  std::cout << "somefile.cpp:" << 42 << ':' << 1 << ":asdf" << "\n";
+  std::cout << "somefile.cpp:" << 42 << ':' << 1 << ':' << 2 << ":asdf" << "\n";
 }
 
 #else
@@ -120,7 +120,8 @@ print('Using compiler', filename)
 class Result:
   pass
 
-# Compile.
+# Measure compile time and executable size.
+expected_output = None
 def benchmark(flags):
   output_filename = prefix + '.out'
   if os.path.exists(output_filename):
@@ -136,12 +137,20 @@ def benchmark(flags):
   check_call(['strip', output_filename])
   result.stripped_size = os.stat(output_filename).st_size
   print('Stripped size: {}'.format(result.stripped_size))
+  p = Popen(['./' + output_filename], stdout=PIPE,
+            env={'LD_LIBRARY_PATH': 'cppformat'})
+  output = p.communicate()[0]
+  global expected_output
+  if not expected_output:
+    expected_output = output
+  elif output != expected_output:
+    raise Exception("output doesn't match")
   sys.stdout.flush()
   return result
 
 configs = [
-  ('Optimized', ['-O3']),
-  ('Debug',     [])
+  ('optimized', ['-O3']),
+  ('debug',     [])
 ]
 
 methods = [
@@ -207,5 +216,3 @@ for config, flags in configs:
     table.append(
       (method, result.time, to_kib(result.size), to_kib(result.stripped_size)))
   print_table(table, '', '.1f', '', '')
-
-# TODO: compare output
