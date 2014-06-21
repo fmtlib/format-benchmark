@@ -12,6 +12,9 @@ project(FORMAT_BENCHMARKS)
 
 include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag(-std=c++11 HAVE_STD_CPP11_FLAG)
+if (HAVE_STD_CPP11_FLAG)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+endif ()
 
 # Use shared cppformat library to make comparison with IOStreams and printf
 # fair as these use shared libraries too (libstdc++ and libc).
@@ -22,9 +25,6 @@ find_package(Boost)
 if (Boost_FOUND)
   add_definitions(-DHAVE_BOOST)
   include_directories(${Boost_INCLUDE_DIRS})
-  if (HAVE_STD_CPP11_FLAG)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-  endif ()
   add_executable(int-generator int_generator.cpp ltoa.c)
   target_link_libraries(int-generator format)
   find_library(HAVE_RT rt)
