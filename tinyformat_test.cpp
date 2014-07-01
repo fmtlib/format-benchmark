@@ -259,21 +259,10 @@ void speedTest(const std::string& which)
 #ifdef HAVE_FORMAT
     else if(which == "format")
     {
-#if FMT_USE_VARIADIC_TEMPLATES && FMT_USE_RVALUE_REFERENCES
         // format version.
         for(long i = 0; i < maxIter; ++i)
-            fmt::Print("{:.10f}:{:04}:{:+}:{}:{}:{}:%\n",
+            fmt::print("{:.10f}:{:04}:{:+}:{}:{}:{}:%\n",
                 1.234, 42, 3.13, "str", (void*)1000, 'X');
-#else
-        fprintf(stderr, "C++11 version of format is not available\n");
-#endif
-    }
-    else if(which == "format98")
-    {
-        // format C++98 version.
-        for(long i = 0; i < maxIter; ++i)
-            fmt::Print("{:.10f}:{:04}:{:+}:{}:{}:{}:%\n")
-                << 1.234 << 42 << 3.13 << "str" << (void*)1000 << 'X';
     }
 #endif
     else if(which == "boost")

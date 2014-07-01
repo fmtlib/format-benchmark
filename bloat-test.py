@@ -32,11 +32,11 @@ void doFormat_a() {
 #include "cppformat/format.h"
 
 void doFormat_a() {
-  fmt::Print("{}\n", "somefile.cpp");
-  fmt::Print("{}:{}\n", "somefile.cpp", 42);
-  fmt::Print("{}:{}:{}\n", "somefile.cpp", 42, "asdf");
-  fmt::Print("{}:{}:{}:{}\n", "somefile.cpp", 42, 1, "asdf");
-  fmt::Print("{}:{}:{}:{}:{}\n", "somefile.cpp", 42, 1, 2, "asdf");
+  fmt::print("{}\n", "somefile.cpp");
+  fmt::print("{}:{}\n", "somefile.cpp", 42);
+  fmt::print("{}:{}:{}\n", "somefile.cpp", 42, "asdf");
+  fmt::print("{}:{}:{}:{}\n", "somefile.cpp", 42, 1, "asdf");
+  fmt::print("{}:{}:{}:{}:{}\n", "somefile.cpp", 42, 1, 2, "asdf");
 }
 
 #elif defined(USE_IOSTREAMS)

@@ -61,8 +61,6 @@ add_custom_target(speed-test
   COMMAND @time -p ./tinyformat_speed_test iostreams > /dev/null
   COMMAND @echo format timings:
   COMMAND @time -p ./tinyformat_speed_test format > /dev/null
-  COMMAND @echo format98 timings:
-  COMMAND @time -p ./tinyformat_speed_test format98 > /dev/null
   COMMAND @echo tinyformat timings:
   COMMAND @time -p ./tinyformat_speed_test tinyformat > /dev/null
   COMMAND @echo boost timings:
