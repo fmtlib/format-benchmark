@@ -310,7 +310,7 @@ int main()
         fmt::Writer writer;
         for (int i = 0; i < MAX_ITERATION; ++i)
         {
-            writer.Clear();
+            writer.clear();
             writer << v[i];
             size += strlen(writer.c_str());
         }
@@ -329,7 +329,7 @@ int main()
         fmt::Writer writer;
         for (int i = 0; i < MAX_ITERATION; ++i)
         {
-            writer.Clear();
+            writer.clear();
             writer << v[i];
             //<-
             str = writer.c_str();      // compensate for string ops in other benchmarks
@@ -341,7 +341,7 @@ int main()
         Report("fmt::Writer+std::string", str, v, time, size);
     }
 
-    // test fmt::Format
+    // test fmt::format
     {
         util::high_resolution_timer t;
         size = 0;
@@ -349,30 +349,11 @@ int main()
         //[karma_int_performance_format_format
         for (int i = 0; i < MAX_ITERATION; ++i)
         {
-            size += strlen(c_str(fmt::Format("{}") << v[i]));
+            size += strlen(fmt::format("{}", v[i]).c_str());
         }
         //]
         double time = t.elapsed();
-        Report("fmt::Format", c_str(fmt::Format("{}") << v[MAX_ITERATION - 1]), v, time, size);
-    }
-
-    // test fmt::Format
-    {
-        std::string str;
-        size = 0;
-        util::high_resolution_timer t;
-
-        //[karma_int_performance_format_format
-        for (int i = 0; i < MAX_ITERATION; ++i)
-        {
-            //<-
-            str = c_str(fmt::Format("{}") << v[i]);      // compensate for string ops in other benchmarks
-            size += strlen(str.c_str());
-            //->
-        }
-        //]
-        double time = t.elapsed();
-        Report("fmt::Format+std::string", str, v, time, size);
+        Report("fmt::format", fmt::format("{}", v[MAX_ITERATION - 1]).c_str(), v, time, size);
     }
 
     // test fmt::FormatInt
@@ -384,7 +365,7 @@ int main()
         for (int i = 0; i < MAX_ITERATION; ++i)
         {
             //<-
-            size += strlen(fmt::FormatInt(v[i]).c_str());      // compensate for string ops in other benchmarks
+            size += strlen(fmt::FormatInt(v[i]).c_str());
             //->
         }
         //]
