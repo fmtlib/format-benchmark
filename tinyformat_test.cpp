@@ -241,12 +241,12 @@ void speedTest(const std::string& which)
     {
         // Std iostreams version.  What a mess!!
         for(long i = 0; i < maxIter; ++i)
-            std::cout << std::setprecision(10) << std::fixed << 1.234 << ":"
+            std::cout << std::setprecision(10) << std::fixed << 1.234 << ':'
                 << std::resetiosflags(std::ios::floatfield)
-                << std::setw(4) << std::setfill('0') << 42 << std::setfill(' ') << ":"
-                << std::setiosflags(std::ios::showpos) << 3.13 << std::resetiosflags(std::ios::showpos) << ":"
-                << "str" << ":"
-                << (void*)1000 << ":"
+                << std::setw(4) << std::setfill('0') << 42 << std::setfill(' ') << ':'
+                << std::setiosflags(std::ios::showpos) << 3.13 << std::resetiosflags(std::ios::showpos) << ':'
+                << "str" << ':'
+                << (void*)1000 << ':'
                 << 'X' << ":%\n";
     }
     else if(which == "tinyformat")
