@@ -53,18 +53,40 @@ if (CPP11_FLAG)
     PROPERTIES COMPILE_FLAGS ${CPP11_FLAG})
 endif ()
 
-add_custom_target(speed-test
-  COMMAND @echo running speed tests...
-  COMMAND @echo printf timings:
-  COMMAND @time -p ./tinyformat_speed_test printf > /dev/null
-  COMMAND @echo iostreams timings:
-  COMMAND @time -p ./tinyformat_speed_test iostreams > /dev/null
-  COMMAND @echo format timings:
-  COMMAND @time -p ./tinyformat_speed_test format > /dev/null
-  COMMAND @echo tinyformat timings:
-  COMMAND @time -p ./tinyformat_speed_test tinyformat > /dev/null
-  COMMAND @echo boost timings:
-  COMMAND @time -p ./tinyformat_speed_test boost > /dev/null
-  DEPENDS tinyformat_speed_test)
+if (WIN32)
+  add_custom_target(speed-test
+	COMMAND @echo running speed tests...
+	COMMAND cd ${CMAKE_CFG_INTDIR}
+	COMMAND @echo printf timings: start %time%
+	COMMAND .\\tinyformat_speed_test.exe printf >NUL
+	COMMAND @echo stop %time%
+	COMMAND @echo iostreams timings: start %time%
+	COMMAND .\\tinyformat_speed_test.exe iostreams >NUL
+	COMMAND @echo stop %time%
+	COMMAND @echo format timings: start %time%
+	COMMAND .\\tinyformat_speed_test.exe format >NUL
+	COMMAND @echo stop %time%
+	COMMAND @echo tinyformat timings: start %time%
+	COMMAND .\\tinyformat_speed_test.exe tinyformat >NUL
+	COMMAND @echo stop %time%
+	COMMAND @echo boost timings: start %time%
+	COMMAND .\\tinyformat_speed_test.exe boost >NUL
+	COMMAND @echo stop %time%
+	DEPENDS tinyformat_speed_test)
+else()
+  add_custom_target(speed-test
+	COMMAND @echo running speed tests...
+	COMMAND @echo printf timings:
+	COMMAND @time -p ./tinyformat_speed_test printf > /dev/null
+	COMMAND @echo iostreams timings:
+	COMMAND @time -p ./tinyformat_speed_test iostreams > /dev/null
+	COMMAND @echo format timings:
+	COMMAND @time -p ./tinyformat_speed_test format > /dev/null
+	COMMAND @echo tinyformat timings:
+	COMMAND @time -p ./tinyformat_speed_test tinyformat > /dev/null
+	COMMAND @echo boost timings:
+	COMMAND @time -p ./tinyformat_speed_test boost > /dev/null
+	DEPENDS tinyformat_speed_test)
+endif()
 
 add_custom_target(bloat-test COMMAND ./bloat-test.py DEPENDS format)
