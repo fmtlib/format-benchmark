@@ -16,9 +16,9 @@ if (HAVE_STD_CPP11_FLAG)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif ()
 
-# Use shared cppformat library to make comparison with IOStreams and printf
+# Use shared libraries to make comparison with IOStreams and printf
 # fair as these use shared libraries too (libstdc++ and libc).
-set(FMT_SHARED ON CACHE BOOL "Build shared library instead of static one")
+set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared library instead of static one")
 add_subdirectory(cppformat)
 
 find_package(Boost)
