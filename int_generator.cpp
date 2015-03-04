@@ -307,7 +307,7 @@ int main()
         util::high_resolution_timer t;
 
         //[karma_int_performance_format_write
-        fmt::Writer writer;
+        fmt::MemoryWriter writer;
         for (int i = 0; i < MAX_ITERATION; ++i)
         {
             writer.clear();
@@ -326,7 +326,7 @@ int main()
         util::high_resolution_timer t;
 
         //[karma_int_performance_format_write
-        fmt::Writer writer;
+        fmt::MemoryWriter writer;
         for (int i = 0; i < MAX_ITERATION; ++i)
         {
             writer.clear();
