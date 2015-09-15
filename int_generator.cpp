@@ -96,12 +96,12 @@ struct random_fill
 };
 
 std::size_t first_size = ~0;
-void Report(const char *method_name, const std::string &last_str,
+void Report(const char *method_name,
   const std::vector<int> &v, double time, std::size_t size)
 {
   if (first_size == ~0)
     first_size = size;
-  if (last_str != std::to_string(v[MAX_ITERATION - 1]) || size != first_size) {
+  if (size != first_size) {
     cout << "Invalid result for " << method_name << endl;
     std::exit(1);
   }
@@ -140,7 +140,7 @@ int main()
         }
         //]
         double time = t.elapsed();
-        Report("ltoa", buffer, v, time, size);
+        Report("ltoa", v, time, size);
     }
 
     // test the C libraries sprintf function (the most low level function for
@@ -159,7 +159,7 @@ int main()
         }
         //]
         double time = t.elapsed();
-        Report("sprintf", buffer, v, time, size);
+        Report("sprintf", v, time, size);
     }
 
     // test the C libraries sprintf function (the most low level function for
@@ -169,20 +169,19 @@ int main()
         char buffer[65]; // we don't expect more than 64 bytes to be generated here
         size = 0;
         //<-
-        std::string str;
         util::high_resolution_timer t;
         //->
         for (int i = 0; i < MAX_ITERATION; ++i)
         {
             sprintf(buffer, "%d", v[i]);
-            size += strlen(buffer);
             //<-
-            str = buffer;      // compensate for string ops in other benchmarks
+            std::string str = buffer;      // compensate for string ops in other benchmarks
             //->
+            size += strlen(str.c_str());
         }
         //]
         double time = t.elapsed();
-        Report("sprintf+std::string", str, v, time, size);
+        Report("sprintf+std::string", v, time, size);
     }
 
     // test std::stringstream
@@ -201,31 +200,29 @@ int main()
         }
         //]
         double time = t.elapsed();
-        Report("std::stringstream", str.str(), v, time, size);
+        Report("std::stringstream", v, time, size);
     }
 
     // test the std::to_string library
     {
         //[karma_int_performance_to_string
         //<-
-        std::string str;
         size = 0;
         util::high_resolution_timer t;
         //->
         for (int i = 0; i < MAX_ITERATION; ++i)
         {
-            str = std::to_string(v[i]);
+            std::string str = std::to_string(v[i]);
             size += strlen(str.c_str());
         }
         //]
         double time = t.elapsed();
-        Report("std::to_string", str, v, time, size);
+        Report("std::to_string", v, time, size);
     }
 
     // test the Boost.Format library
     {
         //[karma_int_performance_boost_format
-        std::string str;
         size = 0;
         boost::format int_format("%d");
         //<-
@@ -233,30 +230,29 @@ int main()
         //->
         for (int i = 0; i < MAX_ITERATION; ++i)
         {
-            str = boost::str(int_format % v[i]);
+            std::string str = boost::str(int_format % v[i]);
             size += strlen(str.c_str());
         }
         //]
         double time = t.elapsed();
-        Report("boost::format", str, v, time, size);
+        Report("boost::format", v, time, size);
     }
 
     // test boost::lexical_cast
     {
         //[karma_int_performance_boost_lexical_cast
-        std::string str;
         size = 0;
         //<-
         util::high_resolution_timer t;
         //->
         for (int i = 0; i < MAX_ITERATION; ++i)
         {
-            str = boost::lexical_cast<std::string>(v[i]);
+            std::string str = boost::lexical_cast<std::string>(v[i]);
             size += strlen(str.c_str());
         }
         //]
         double time = t.elapsed();
-        Report("boost::lexical_cast", str, v, time, size);
+        Report("boost::lexical_cast", v, time, size);
     }
 
     // test karma::generate
@@ -275,12 +271,11 @@ int main()
         }
         //]
         double time = t.elapsed();
-        Report("karma::generate", buffer, v, time, size);
+        Report("karma::generate", v, time, size);
     }
 
     // test karma::generate
     {
-        std::string str;
         size = 0;
         util::high_resolution_timer t;
 
@@ -291,14 +286,14 @@ int main()
             char *ptr = buffer;
             karma::generate(ptr, int_, v[i]);
             *ptr = '\0';
-            size += strlen(buffer);
             //<-
-            str = buffer;      // compensate for string ops in other benchmarks
+            std::string str = buffer;      // compensate for string ops in other benchmarks
             //->
+            size += strlen(str.c_str());
         }
         //]
         double time = t.elapsed();
-        Report("karma::generate+std::string", str, v, time, size);
+        Report("karma::generate+std::string", v, time, size);
     }
 
     // test fmt::Writer
@@ -316,12 +311,11 @@ int main()
         }
         //]
         double time = t.elapsed();
-        Report("fmt::Writer", writer.str(), v, time, size);
+        Report("fmt::Writer", v, time, size);
     }
 
         // test fmt::Writer
     {
-        std::string str;
         size = 0;
         util::high_resolution_timer t;
 
@@ -332,13 +326,13 @@ int main()
             writer.clear();
             writer << v[i];
             //<-
-            str = writer.c_str();      // compensate for string ops in other benchmarks
-            size += strlen(writer.c_str());
+            std::string str = writer.c_str();      // compensate for string ops in other benchmarks
             //->
+            size += strlen(str.c_str());
         }
         //]
         double time = t.elapsed();
-        Report("fmt::Writer+std::string", str, v, time, size);
+        Report("fmt::Writer+std::string", v, time, size);
     }
 
     // test fmt::format
@@ -349,11 +343,12 @@ int main()
         //[karma_int_performance_format_format
         for (int i = 0; i < MAX_ITERATION; ++i)
         {
-            size += strlen(fmt::format("{}", v[i]).c_str());
+            std::string str = fmt::format("{}", v[i]);
+            size += strlen(str.c_str());
         }
         //]
         double time = t.elapsed();
-        Report("fmt::format", fmt::format("{}", v[MAX_ITERATION - 1]).c_str(), v, time, size);
+        Report("fmt::format", v, time, size);
     }
 
     // test fmt::FormatInt
@@ -370,7 +365,7 @@ int main()
         }
         //]
         double time = t.elapsed();
-        Report("fmt::FormatInt", fmt::FormatInt(v[MAX_ITERATION - 1]).str(), v, time, size);
+        Report("fmt::FormatInt", v, time, size);
     }
 
     // test cppx::decimal_from
@@ -388,24 +383,24 @@ int main()
         }
         //]
         double time = t.elapsed();
-        Report("cppx::decimal_from", buffer, v, time, size);
+        Report("cppx::decimal_from", v, time, size);
     }
 
     // test itostr
     {
         //[karma_int_performance_itostr
-        std::string str;
         size = 0;
         //<-
         util::high_resolution_timer t;
         //->
         for (int i = 0; i < MAX_ITERATION; ++i)
         {
-            size += strlen((str = itostr(v[i])).c_str());
+            std::string str = itostr(v[i]);
+            size += strlen(str.c_str());
         }
         //]
         double time = t.elapsed();
-        Report("itostr", str, v, time, size);
+        Report("itostr", v, time, size);
     }
 
     return 0;
