@@ -149,7 +149,7 @@ def benchmark(flags):
   return result
 
 configs = [
-  ('optimized', ['-O3']),
+  ('optimized', ['-O3', '-DNDEBUG']),
   ('debug',     [])
 ]
 
