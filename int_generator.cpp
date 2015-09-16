@@ -212,8 +212,7 @@ int main()
         //->
         for (int i = 0; i < MAX_ITERATION; ++i)
         {
-            std::string str = std::to_string(v[i]);
-            size += strlen(str.c_str());
+            size += strlen(std::to_string(v[i]).c_str());
         }
         //]
         double time = t.elapsed();
@@ -230,8 +229,7 @@ int main()
         //->
         for (int i = 0; i < MAX_ITERATION; ++i)
         {
-            std::string str = boost::str(int_format % v[i]);
-            size += strlen(str.c_str());
+            size += strlen(boost::str(int_format % v[i]).c_str());
         }
         //]
         double time = t.elapsed();
@@ -247,8 +245,7 @@ int main()
         //->
         for (int i = 0; i < MAX_ITERATION; ++i)
         {
-            std::string str = boost::lexical_cast<std::string>(v[i]);
-            size += strlen(str.c_str());
+            size += strlen(boost::lexical_cast<std::string>(v[i]).c_str());
         }
         //]
         double time = t.elapsed();
@@ -343,8 +340,7 @@ int main()
         //[karma_int_performance_format_format
         for (int i = 0; i < MAX_ITERATION; ++i)
         {
-            std::string str = fmt::format("{}", v[i]);
-            size += strlen(str.c_str());
+            size += strlen(fmt::format("{}", v[i]).c_str());
         }
         //]
         double time = t.elapsed();
@@ -395,8 +391,7 @@ int main()
         //->
         for (int i = 0; i < MAX_ITERATION; ++i)
         {
-            std::string str = itostr(v[i]);
-            size += strlen(str.c_str());
+            size += strlen(itostr(v[i]).c_str());
         }
         //]
         double time = t.elapsed();
