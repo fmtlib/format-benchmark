@@ -84,7 +84,7 @@ for f in filenames:
 # Generate all the files.
 main_source = prefix + 'main.cc'
 main_header = prefix + 'all.h'
-sources = [main_source, main_header]
+sources = [main_source]
 with nested(open(main_source, 'w'), open(main_header, 'w')) as \
      (main_file, header_file):
   main_file.write(re.sub('^ +', '', '''
@@ -156,7 +156,7 @@ configs = [
 methods = [
   ('printf'      , []),
   ('IOStreams'   , ['-DUSE_IOSTREAMS']),
-  ('C++ Format'  , ['-DUSE_CPPFORMAT', '-Lcppformat', '-lformat']),
+  ('C++ Format'  , ['-DUSE_CPPFORMAT', '-Lcppformat', '-lcppformat']),
   ('tinyformat'  , ['-DUSE_TINYFORMAT']),
   ('Boost Format', ['-DUSE_BOOST'])
 ]

@@ -89,4 +89,4 @@ else()
 	DEPENDS tinyformat_speed_test)
 endif()
 
-add_custom_target(bloat-test COMMAND ./bloat-test.py DEPENDS format)
+add_custom_target(bloat-test COMMAND ./bloat-test.py DEPENDS cppformat)
