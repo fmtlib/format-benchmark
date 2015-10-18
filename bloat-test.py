@@ -199,7 +199,7 @@ for config, flags in configs:
     for method, method_flags in methods:
       print('Benchmarking', config, method)
       sys.stdout.flush()
-      new_result = benchmark(flags + method_flags)
+      new_result = benchmark(flags + method_flags + sys.argv[1:])
       if method not in results:
         results[method] = new_result
         continue
