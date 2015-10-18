@@ -126,8 +126,9 @@ def benchmark(flags):
   output_filename = prefix + '.out'
   if os.path.exists(output_filename):
     os.remove(output_filename)
+  include_dir = '-I' + os.path.dirname(os.path.realpath(__file__))
   command = 'check_call({})'.format(
-    [compiler_path, '-std=c++11', '-o', output_filename] + sources + flags)
+    [compiler_path, '-std=c++11', '-o', output_filename, include_dir] + sources + flags)
   result = Result()
   result.time = timeit(
     command, setup = 'from subprocess import check_call', number = 1)

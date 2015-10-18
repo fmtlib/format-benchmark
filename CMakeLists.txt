@@ -89,4 +89,4 @@ else()
 	DEPENDS tinyformat_speed_test)
 endif()
 
-add_custom_target(bloat-test COMMAND ./bloat-test.py DEPENDS cppformat)
+add_custom_target(bloat-test COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bloat-test.py DEPENDS cppformat)
