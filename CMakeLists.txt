@@ -92,3 +92,8 @@ endif()
 add_custom_target(bloat-test 
                   COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bloat-test.py -I${Boost_INCLUDE_DIRS}
                   DEPENDS cppformat)
+
+add_custom_target(variadic-test 
+                  COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/variadic-test.py
+                          \${ARGS} -I${Boost_INCLUDE_DIRS}
+                  DEPENDS cppformat)
