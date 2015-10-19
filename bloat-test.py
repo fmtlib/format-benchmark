@@ -84,7 +84,7 @@ for f in filenames:
 # Generate all the files.
 main_source = prefix + 'main.cc'
 main_header = prefix + 'all.h'
-sources = [main_source, main_header]
+sources = [main_source]
 with nested(open(main_source, 'w'), open(main_header, 'w')) as \
      (main_file, header_file):
   main_file.write(re.sub('^ +', '', '''
@@ -126,8 +126,9 @@ def benchmark(flags):
   output_filename = prefix + '.out'
   if os.path.exists(output_filename):
     os.remove(output_filename)
+  include_dir = '-I' + os.path.dirname(os.path.realpath(__file__))
   command = 'check_call({})'.format(
-    [compiler_path, '-std=c++11', '-o', output_filename] + sources + flags)
+    [compiler_path, '-std=c++11', '-o', output_filename, include_dir] + sources + flags)
   result = Result()
   result.time = timeit(
     command, setup = 'from subprocess import check_call', number = 1)
@@ -156,7 +157,7 @@ configs = [
 methods = [
   ('printf'      , []),
   ('IOStreams'   , ['-DUSE_IOSTREAMS']),
-  ('C++ Format'  , ['-DUSE_CPPFORMAT', '-Lcppformat', '-lformat']),
+  ('C++ Format'  , ['-DUSE_CPPFORMAT', '-Lcppformat', '-lcppformat']),
   ('tinyformat'  , ['-DUSE_TINYFORMAT']),
   ('Boost Format', ['-DUSE_BOOST'])
 ]
@@ -198,7 +199,7 @@ for config, flags in configs:
     for method, method_flags in methods:
       print('Benchmarking', config, method)
       sys.stdout.flush()
-      new_result = benchmark(flags + method_flags)
+      new_result = benchmark(flags + method_flags + sys.argv[1:])
       if method not in results:
         results[method] = new_result
         continue
