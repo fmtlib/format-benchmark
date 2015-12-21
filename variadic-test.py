@@ -336,6 +336,11 @@ def main():
       for config, _ in configs:
         check_output(data['printf'][config], data[method][config])
 
+  for method, _ in methods:
+    for config, _ in configs:
+      for result in data[method][config]:
+        del result['output']
+
   with open('variadic-test.pkl', 'wb') as file:
     pickle.dump(data, file)
 
