@@ -17,14 +17,37 @@ from timeit import timeit
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('min', type=int, help='minimum number of arguments')
-parser.add_argument('max', type=int, help='maximum number of arguments')
-parser.add_argument('n', type=int, help='number of translation units')
+subparsers = parser.add_subparsers(help='possible commands', dest='command')
+
+parser_bench = subparsers.add_parser('bench', help='run the benchmark')
+parser_bench.add_argument('min', type=int, help='minimum number of arguments')
+parser_bench.add_argument('max', type=int, help='maximum number of arguments')
+parser_bench.add_argument('num_translation_units', metavar='N', type=int,
+                          help='number of translation units')
+
+parser_plot = subparsers.add_parser('plot', help='plot the results')
+parser_plot.add_argument('--filename', type=str, default='variadic-test.pkl',
+                         help='bench result file path')
+
+parser_plotdiff = subparsers.add_parser(
+  'plotdiff', help='plot the difference between result files'
+)
+parser_plotdiff.add_argument('files', type=str, nargs='*',
+                             help='result files to be compared')
+parser_plotdiff.add_argument('--method', type=str, default='C++ Format',
+                             help='formatting library')
+parser_plotdiff.add_argument('--config', type=str, default='optimized',
+                             help='optimized or debug')
+
 options, more_compiler_flags = parser.parse_known_args(sys.argv[1:])
+
+if 'plot' in options.command:
+  import numpy as np
+  import matplotlib.pyplot as plt
+  import seaborn as sns
 
 
 prefix = '_variadic_test_tmp_'
-num_translation_units = options.n
 NUM_RUNS = 3
 use_clobber = False
 
@@ -216,7 +239,7 @@ def generate_files(num_args):
         std::cout.precision(1);
       #endif
       '''.format(prefix), 0, re.MULTILINE))
-    for i in range(num_translation_units):
+    for i in range(options.num_translation_units):
       n = '{:03}'.format(i)
       func_name = 'doFormat_a' + n
       func_params = '(int i, float f, const char* s)'
@@ -326,7 +349,7 @@ def check_output(expected_list, actual_list):
       raise Exception("output doesn't match")
 
 
-def main():
+def bench_command():
   data = {'options': options}
   for method, method_flags in methods:
     data[method] = {config: bench(method, config, method_flags + config_flags)
@@ -345,5 +368,125 @@ def main():
     pickle.dump(data, file)
 
 
+def load_data(filename):
+  if not filename.endswith('.pkl'):
+    filename += '.pkl'
+
+  with open(filename, 'rb') as file:
+    return pickle.load(file)
+
+
+def set_plot_style():
+  sns.set_style("ticks", rc={'xtick.direction': 'in', 'ytick.direction': 'in'})
+  sns.set_palette('Set1')
+
+
+def plot_title(s):
+  plt.annotate(s, (0.05, 0.9), xycoords='axes fraction',
+               fontsize=14, horizontalalignment='left',
+               bbox=dict(boxstyle="round,pad=0.2", fc='white'))
+
+
+def plot_subfigure(x, y, prop, **kwargs):
+  zorder = 3 if kwargs.get('label') == 'C++ Format' else 2
+  plt.plot(x, y, marker='o', markersize=6, zorder=zorder, **kwargs)
+  plt.axvline(16, ls='--', color='grey')
+
+  xmax = max(x) + 1
+  plt.xlim(0, xmax)
+  plt.xticks(np.arange(0, xmax, 4))
+  plt.grid(color='k', alpha=0.4, ls=':')
+  sns.despine()
+
+  plt.xlabel('number of arguments')
+  if prop == 'time':
+    plt.ylabel('compile time (s)')
+  else:
+    plt.ylabel('binary size (MiB)')
+
+
+def plot_all(filename, prop):
+  data = load_data(filename)
+  x = np.arange(data['options'].min, data['options'].max)
+
+  def make_y(results):
+    y = [result[prop] for result in results]
+    if prop == 'size':
+      y = np.array(y) / 1024 / 1024
+    return y
+
+  set_plot_style()
+  plt.figure(figsize=(8, 3.5))
+
+  plt.subplot('121')
+  plot_title('release')
+  for method, _ in methods:
+    plot_subfigure(x, make_y(data[method]['optimized']), prop, label=method)
+
+  plt.legend(loc='upper center', bbox_to_anchor=(1.05, 1.17),
+             ncol=5, fontsize=11)
+
+  plt.subplot('122')
+  plot_title('debug')
+  for method, _ in methods:
+    plot_subfigure(x, make_y(data[method]['debug']), prop, label=method)
+
+  plt.suptitle('variadic-test', fontsize=16, y=1.1)
+  plt.savefig('variadic-test_{}.png'.format(prop), bbox_inches='tight')
+
+
+def plot_command():
+  for prop in 'time', 'size':
+    plot_all(options.filename, prop)
+
+
+def plot_diff(filenames, method, config, prop):
+  dataset = [load_data(f) for f in filenames]
+  baseline = dataset[0][method][config]
+  x = np.arange(dataset[0]['options'].min, dataset[0]['options'].max)
+
+  set_plot_style()
+  plt.figure(figsize=(8, 3.5))
+
+  plt.subplot('121')
+  plot_title('absolute')
+  for name, data in zip(filenames, dataset):
+    y = [result[prop] for result in data[method][config]]
+    if prop == 'size':
+      y = np.array(y) / 1024 / 1024
+    plot_subfigure(x, y, prop, label=name)
+
+  plt.legend(loc='upper center', bbox_to_anchor=(1.05, 1.17),
+             ncol=5, fontsize=11)
+
+  plt.subplot('122')
+  plot_title('relative')
+  for name, data in zip(filenames, dataset):
+    results = data[method][config]
+    y = [result[prop] / base[prop] for result, base in zip(results, baseline)]
+    plot_subfigure(x, y, prop, label=name)
+
+  ylim = plt.ylim()
+  plt.ylim(ylim[0] * 0.8, ylim[1] * 1.2)
+  ax = plt.gca()
+  vals = ax.get_yticks()
+  ax.set_yticklabels(['{:3.0%}'.format(x) for x in vals])
+  plt.ylabel('')
+
+  plt.suptitle('variadic-diff', fontsize=16, y=1.1)
+  plt.savefig('variadic-diff_{}.png'.format(prop), bbox_inches='tight')
+
+
+def plotdiff_command():
+  for prop in 'time', 'size':
+    plot_diff(options.files, options.method, options.config, prop)
+
+
+commands = {
+  'bench': bench_command,
+  'plot': plot_command,
+  'plotdiff': plotdiff_command,
+}
+
 if __name__ == '__main__':
-  main()
+  commands[options.command]()
