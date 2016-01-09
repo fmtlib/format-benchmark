@@ -97,3 +97,7 @@ add_custom_target(variadic-test
                   COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/variadic-test.py
                           \${ARGS} -I${Boost_INCLUDE_DIRS}
                   DEPENDS cppformat)
+
+enable_testing()
+add_subdirectory(benchmark)
+add_subdirectory(digits10)
