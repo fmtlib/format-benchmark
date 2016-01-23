@@ -37,7 +37,6 @@ inline std::uint32_t digits10_clz(std::uint32_t n) {
   return t - (n < powers_of_10_u32[t]) + 1;
 }
 
-
 // Return minimum number with the specified number of digits.
 inline std::uint32_t min_number(unsigned num_digits) {
   if (num_digits == 0 || num_digits > 10)
