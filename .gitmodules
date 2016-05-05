@@ -1,6 +1,6 @@
-[submodule "cppformat"]
-	path = cppformat
-	url = https://github.com/cppformat/cppformat.git
+[submodule "fmt"]
+	path = fmt
+	url = https://github.com/fmtlib/fmt.git
 [submodule "benchmark"]
 	path = benchmark
 	url = git@github.com:google/benchmark.git

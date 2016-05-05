@@ -59,7 +59,7 @@ configs = [
 methods = [
   ('printf'      , []),
   ('IOStreams'   , ['-DUSE_IOSTREAMS']),
-  ('C++ Format'  , ['-DUSE_CPPFORMAT', '-Lcppformat', '-lcppformat']),
+  ('fmt'         , ['-DUSE_FMT', '-Lfmt', '-lfmt']),
   ('tinyformat'  , ['-DUSE_TINYFORMAT']),
   ('Boost Format', ['-DUSE_BOOST'])
 ]
@@ -70,7 +70,7 @@ method_templates = {
     'sep': ' % ',
     'specifier': '%{type}',
   },
-  'cppformat': {
+  'fmt': {
     'statement': r'fmt::print("{fmt_str}\n", {args});',
     'sep': ', ',
     'specifier': '{{:{type}}}',
@@ -100,11 +100,11 @@ main_template = r'''
 
 {boost}
 
-#elif defined(USE_CPPFORMAT)
+#elif defined(USE_FMT)
 
-#include "cppformat/format.h"
+#include "fmt/format.h"
 
-{cppformat}
+{fmt}
 
 #elif defined(USE_IOSTREAMS)
 
@@ -295,7 +295,7 @@ def measure_compile(compiler_path, sources, flags):
   result['stripped_size'] = os.stat(output_filename).st_size
 
   p = Popen(['./' + output_filename], stdout=PIPE,
-            env={'LD_LIBRARY_PATH': 'cppformat'})
+            env={'LD_LIBRARY_PATH': 'fmt'})
   result['output'] = p.communicate()[0]
   sys.stdout.flush()
 

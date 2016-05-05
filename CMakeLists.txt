@@ -19,14 +19,14 @@ endif ()
 # Use shared libraries to make comparison with IOStreams and printf
 # fair as these use shared libraries too (libstdc++ and libc).
 set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared library instead of static one")
-add_subdirectory(cppformat)
+add_subdirectory(fmt)
 
 find_package(Boost)
 if (Boost_FOUND)
   add_definitions(-DHAVE_BOOST)
   include_directories(${Boost_INCLUDE_DIRS})
   add_executable(int-generator int_generator.cpp ltoa.c)
-  target_link_libraries(int-generator cppformat)
+  target_link_libraries(int-generator fmt)
   find_library(HAVE_RT rt)
   if (HAVE_RT)
     target_link_libraries(int-generator rt)
@@ -41,7 +41,7 @@ if (PROFILER_LIB AND PROFILER_INCLUDE_DIR)
 endif ()
 
 add_executable(tinyformat_speed_test tinyformat_test.cpp)
-target_link_libraries(tinyformat_speed_test cppformat)
+target_link_libraries(tinyformat_speed_test fmt)
 if (HAVE_PROFILER)
   target_link_libraries(tinyformat_speed_test ${PROFILER_LIB})
   set(PROFILE_DEFS ";FMT_PROFILE")
@@ -91,12 +91,12 @@ endif()
 
 add_custom_target(bloat-test 
                   COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bloat-test.py -I${Boost_INCLUDE_DIRS}
-                  DEPENDS cppformat)
+                  DEPENDS fmt)
 
 add_custom_target(variadic-test 
                   COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/variadic-test.py
                           \${ARGS} -I${Boost_INCLUDE_DIRS}
-                  DEPENDS cppformat)
+                  DEPENDS fmt)
 
 enable_testing()
 add_subdirectory(benchmark)

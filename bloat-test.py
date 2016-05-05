@@ -27,9 +27,9 @@ void doFormat_a() {
     boost::format("%s:%d:%d:%d:%s\n") % "somefile.cpp" % 42 % 1 % 2 % "asdf";
 }
 
-#elif defined(USE_CPPFORMAT)
+#elif defined(USE_FMT)
 
-#include "cppformat/format.h"
+#include "fmt/format.h"
 
 void doFormat_a() {
   fmt::print("{}\n", "somefile.cpp");
@@ -139,7 +139,7 @@ def benchmark(flags):
   result.stripped_size = os.stat(output_filename).st_size
   print('Stripped size: {}'.format(result.stripped_size))
   p = Popen(['./' + output_filename], stdout=PIPE,
-            env={'LD_LIBRARY_PATH': 'cppformat'})
+            env={'LD_LIBRARY_PATH': 'fmt/fmt'})
   output = p.communicate()[0]
   global expected_output
   if not expected_output:
@@ -157,7 +157,7 @@ configs = [
 methods = [
   ('printf'      , []),
   ('IOStreams'   , ['-DUSE_IOSTREAMS']),
-  ('C++ Format'  , ['-DUSE_CPPFORMAT', '-Lcppformat', '-lcppformat']),
+  ('fmt'         , ['-DUSE_FMT', '-Ifmt', 'fmt/fmt/libfmt.so']),
   ('tinyformat'  , ['-DUSE_TINYFORMAT']),
   ('Boost Format', ['-DUSE_BOOST'])
 ]
