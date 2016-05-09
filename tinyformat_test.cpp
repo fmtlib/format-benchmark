@@ -16,6 +16,9 @@ namespace std { class type_info; }
 #ifdef HAVE_BOOST
 # include <boost/format.hpp>
 #endif
+#ifdef HAVE_FOLLY
+# include <folly/Format.h>
+#endif
 #include <iomanip>
 #include <stdio.h>
 #endif
@@ -109,6 +112,17 @@ void speedTest(const std::string& which)
                 1.234, 42, 3.13, "str", (void*)1000, 'X');
     }
 #endif
+    else if(which == "folly")
+    {
+#ifdef HAVE_FOLLY
+        // folly::format version
+        for(long i = 0; i < maxIter; ++i)
+            std::cout << folly::format("{:.10f}:{:04}:{:+}:{}:{}:{}:%\n",
+                1.234, 42, 3.13, "str", (void*)1000, 'X');
+#else
+        fprintf(stderr, "folly is not available\n");
+#endif
+    }
     else if(which == "boost")
     {
 #ifdef HAVE_BOOST
