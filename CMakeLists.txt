@@ -19,6 +19,7 @@ endif ()
 # Use shared libraries to make comparison with IOStreams and printf
 # fair as these use shared libraries too (libstdc++ and libc).
 set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared library instead of static one")
+set(FMT_TEST TRUE)
 add_subdirectory(fmt)
 
 find_package(Boost)
