@@ -10,6 +10,8 @@ endif ()
 
 project(FORMAT_BENCHMARKS)
 
+set(CMAKE_MACOSX_RPATH ON)
+
 include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag(-std=c++11 HAVE_STD_CPP11_FLAG)
 if (HAVE_STD_CPP11_FLAG)
