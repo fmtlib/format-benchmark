@@ -11,7 +11,7 @@ namespace std { class type_info; }
 
 #ifdef SPEED_TEST
 #ifdef HAVE_FORMAT
-# include "cppformat/format.h"
+# include "fmt/format.h"
 #endif
 #ifdef HAVE_BOOST
 # include <boost/format.hpp>
