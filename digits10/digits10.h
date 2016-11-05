@@ -56,7 +56,7 @@ std::vector<std::uint32_t> generate_numbers(int num_digits);
 
 template <typename F>
 void run_benchmark(benchmark::State& state, F digits10) {
-  int num_digits = state.range_x();
+  int num_digits = state.range();
   auto numbers = generate_numbers(num_digits);
   bool valid = true;
   while (state.KeepRunning()) {

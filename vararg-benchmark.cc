@@ -17,13 +17,15 @@ int test_printf(const char *format, ...) {
 }
 
 void varargs(benchmark::State& state) {
-  while (state.KeepRunning())
+  while (state.KeepRunning()) {
+    benchmark::ClobberMemory();
     test_printf("%d", 42);
+  }
 }
 
 BENCHMARK(varargs);
 
-void __attribute__((noinline)) test_vprint(const char *, fmt::format_args ) {
+void __attribute__((noinline)) test_vprint(const char *, fmt::format_args) {
 }
 
 template <typename ... Args>
@@ -32,8 +34,10 @@ inline void test_print(const char *format, const Args & ... args) {
 }
 
 void fmt_variadic(benchmark::State &state) {
-  while (state.KeepRunning())
+  while (state.KeepRunning()) {
+    benchmark::ClobberMemory();
     test_print("{}", 42);
+  }
 }
 
 BENCHMARK(fmt_variadic);
@@ -52,5 +56,20 @@ void test_format(benchmark::State &state) {
 }
 
 BENCHMARK(test_format);
+
+void test_sprintf_pos(benchmark::State &state) {
+  char buffer[64];
+  while (state.KeepRunning())
+    std::sprintf(buffer, "%1$d", 42);
+}
+
+BENCHMARK(test_sprintf_pos);
+
+void test_format_pos(benchmark::State &state) {
+  while (state.KeepRunning())
+    fmt::format("{0}", 42);
+}
+
+BENCHMARK(test_format_pos);
 
 BENCHMARK_MAIN();

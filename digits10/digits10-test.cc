@@ -51,7 +51,7 @@ TEST(Digits10Test, GenerateNumbers) {
 }
 
 TEST(Digits10Test, RunBenchmark) {
-  benchmark::State state(1, false, 0, false, 0, 0);
+  benchmark::State state(1, {}, 0, 0, 0, 0);
   run_benchmark(state, digits10_naive);
 }
 
