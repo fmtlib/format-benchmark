@@ -21,7 +21,7 @@
 
 #define BUFSIZE (sizeof(long) * 8 + 1)
 
-char *ltoa(long N, char *str, int base)
+extern "C" char *ltoa(long N, char *str, int base)
 {
       register int i = 2;
       long uarg;

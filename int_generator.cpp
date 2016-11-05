@@ -14,7 +14,7 @@
 
 #include "high_resolution_timer.hpp"
 
-#include "cppformat/format.h"
+#include "fmt/format.h"
 
 //  This value specifies, how to unroll the integer string generation loop in
 //  Karma.

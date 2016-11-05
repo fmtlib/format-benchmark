@@ -154,10 +154,14 @@ configs = [
   ('debug',     [])
 ]
 
+fmt_library = 'fmt/fmt/libfmt.so'
+if not os.path.exists(fmt_library):
+  fmt_library = fmt_library.replace('.so', '.dylib')
+
 methods = [
   ('printf'      , []),
   ('IOStreams'   , ['-DUSE_IOSTREAMS']),
-  ('fmt'         , ['-DUSE_FMT', '-Ifmt', 'fmt/fmt/libfmt.so']),
+  ('fmt'         , ['-DUSE_FMT', '-Ifmt', fmt_library]),
   ('tinyformat'  , ['-DUSE_TINYFORMAT']),
   ('Boost Format', ['-DUSE_BOOST'])
 ]

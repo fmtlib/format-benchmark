@@ -28,7 +28,7 @@ find_package(Boost)
 if (Boost_FOUND)
   add_definitions(-DHAVE_BOOST)
   include_directories(${Boost_INCLUDE_DIRS})
-  add_executable(int-generator int_generator.cpp ltoa.c)
+  add_executable(int-generator int_generator.cpp ltoa.cc)
   target_link_libraries(int-generator fmt)
   find_library(HAVE_RT rt)
   if (HAVE_RT)
@@ -92,11 +92,11 @@ else()
 	DEPENDS tinyformat_speed_test)
 endif()
 
-add_custom_target(bloat-test 
+add_custom_target(bloat-test
                   COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bloat-test.py -I${Boost_INCLUDE_DIRS}
                   DEPENDS fmt)
 
-add_custom_target(variadic-test 
+add_custom_target(variadic-test
                   COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/variadic-test.py
                           \${ARGS} -I${Boost_INCLUDE_DIRS}
                   DEPENDS fmt)
