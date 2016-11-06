@@ -4,7 +4,8 @@
 #include "benchmark/benchmark.h"
 #include "fmt/format.h"
 
-int __attribute__((noinline)) test_vprintf(const char *, std::va_list) {
+int __attribute__((noinline)) test_vprintf(const char *f, std::va_list) {
+  benchmark::DoNotOptimize(f);
   return 0;
 }
 
@@ -17,15 +18,14 @@ int test_printf(const char *format, ...) {
 }
 
 void varargs(benchmark::State& state) {
-  while (state.KeepRunning()) {
-    benchmark::ClobberMemory();
+  while (state.KeepRunning())
     test_printf("%d", 42);
-  }
 }
 
 BENCHMARK(varargs);
 
-void __attribute__((noinline)) test_vprint(const char *, fmt::format_args) {
+void __attribute__((noinline)) test_vprint(const char *f, fmt::format_args) {
+  benchmark::DoNotOptimize(f);
 }
 
 template <typename ... Args>
@@ -34,10 +34,8 @@ inline void test_print(const char *format, const Args & ... args) {
 }
 
 void fmt_variadic(benchmark::State &state) {
-  while (state.KeepRunning()) {
-    benchmark::ClobberMemory();
+  while (state.KeepRunning())
     test_print("{}", 42);
-  }
 }
 
 BENCHMARK(fmt_variadic);
