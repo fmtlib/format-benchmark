@@ -36,6 +36,13 @@ if (Boost_FOUND)
   endif ()
 endif ()
 
+find_path(FOLLY_INCLUDE_DIR folly/Format.h)
+find_library(FOLLY_LIB folly)
+if (FOLLY_INCLUDE_DIR AND FOLLY_LIB)
+  add_definitions(-DHAVE_FOLLY)
+  set(EXTRA_LIBS ${FOLLY_LIB})
+endif ()
+
 find_library(PROFILER_LIB profiler)
 find_path(PROFILER_INCLUDE_DIR gperftools/profiler.h)
 if (PROFILER_LIB AND PROFILER_INCLUDE_DIR)
@@ -44,7 +51,7 @@ if (PROFILER_LIB AND PROFILER_INCLUDE_DIR)
 endif ()
 
 add_executable(tinyformat_speed_test tinyformat_test.cpp)
-target_link_libraries(tinyformat_speed_test fmt)
+target_link_libraries(tinyformat_speed_test fmt ${EXTRA_LIBS})
 if (HAVE_PROFILER)
   target_link_libraries(tinyformat_speed_test ${PROFILER_LIB})
   set(PROFILE_DEFS ";FMT_PROFILE")
@@ -78,7 +85,7 @@ if (WIN32)
 	DEPENDS tinyformat_speed_test)
 else()
   add_custom_target(speed-test
-	COMMAND @echo running speed tests...
+        COMMAND @echo running speed tests...
 	COMMAND @echo printf timings:
 	COMMAND @time -p ./tinyformat_speed_test printf > /dev/null
 	COMMAND @echo iostreams timings:
@@ -89,6 +96,8 @@ else()
 	COMMAND @time -p ./tinyformat_speed_test tinyformat > /dev/null
 	COMMAND @echo boost timings:
 	COMMAND @time -p ./tinyformat_speed_test boost > /dev/null
+        COMMAND @echo folly timings:
+        COMMAND @time -p ./tinyformat_speed_test folly > /dev/null
 	DEPENDS tinyformat_speed_test)
 endif()
 
