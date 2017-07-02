@@ -24,13 +24,13 @@ void varargs(benchmark::State& state) {
 
 BENCHMARK(varargs);
 
-void __attribute__((noinline)) test_vprint(const char *f, fmt::format_args) {
+void __attribute__((noinline)) test_vprint(const char *f, fmt::args) {
   benchmark::DoNotOptimize(f);
 }
 
 template <typename ... Args>
 inline void test_print(const char *format, const Args & ... args) {
-  test_vprint(format, fmt::make_format_args<fmt::BasicFormatter<char>>(args...));
+  test_vprint(format, fmt::make_args<fmt::context>(args...));
 }
 
 void fmt_variadic(benchmark::State &state) {
