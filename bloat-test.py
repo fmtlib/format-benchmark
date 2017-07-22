@@ -27,6 +27,21 @@ void doFormat_a() {
     boost::format("%s:%d:%d:%d:%s\n") % "somefile.cpp" % 42 % 1 % 2 % "asdf";
 }
 
+#elif USE_FOLLY
+
+#include <folly/Format.h>
+#include <iostream>
+
+void doFormat_a() {
+  std::cout << folly::format("{}\n", "somefile.cpp");
+  std::cout << folly::format("{}:{}\n", "somefile.cpp", 42);
+  std::cout << folly::format("{}:{}:{}\n", "somefile.cpp", 42, "asdf");
+  std::cout <<
+    folly::format("{}:{}:{}:{}\n", "somefile.cpp", 42, 1, "asdf");
+  std::cout <<
+    folly::format("{}:{}:{}:{}:{}\n", "somefile.cpp", 42, 1, 2, "asdf");
+}
+
 #elif defined(USE_FMT)
 
 #include "fmt/format.h"
@@ -163,7 +178,8 @@ methods = [
   ('IOStreams'   , ['-DUSE_IOSTREAMS']),
   ('fmt'         , ['-DUSE_FMT', '-Ifmt', fmt_library]),
   ('tinyformat'  , ['-DUSE_TINYFORMAT']),
-  ('Boost Format', ['-DUSE_BOOST'])
+  ('Boost Format', ['-DUSE_BOOST']),
+  ('Folly Format', ['-DUSE_FOLLY', '-lfolly'])
 ]
 
 def format_field(field, format = '', width = ''):
