@@ -71,6 +71,9 @@ void doFormat_a() {
 #   include "tinyformat.h"
 #   define PRINTF tfm::printf
 # else
+#  ifdef USE_STRING
+#   include <string>
+#  endif
 #   include <stdio.h>
 #   define PRINTF ::printf
 # endif
@@ -174,12 +177,13 @@ if not os.path.exists(fmt_library):
   fmt_library = fmt_library.replace('.so', '.dylib')
 
 methods = [
-  ('printf'      , []),
-  ('IOStreams'   , ['-DUSE_IOSTREAMS']),
-  ('fmt'         , ['-DUSE_FMT', '-Ifmt/include', fmt_library]),
-  ('tinyformat'  , ['-DUSE_TINYFORMAT']),
-  ('Boost Format', ['-DUSE_BOOST']),
-  ('Folly Format', ['-DUSE_FOLLY', '-lfolly'])
+  ('printf'       , []),
+  ('printf+string', ['-DUSE_STRING']),
+  ('IOStreams'    , ['-DUSE_IOSTREAMS']),
+  ('fmt'          , ['-DUSE_FMT', '-Ifmt/include', fmt_library]),
+  ('tinyformat'   , ['-DUSE_TINYFORMAT']),
+  ('Boost Format' , ['-DUSE_BOOST']),
+  ('Folly Format' , ['-DUSE_FOLLY', '-lfolly'])
 ]
 
 def format_field(field, format = '', width = ''):
