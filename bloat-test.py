@@ -44,7 +44,7 @@ void doFormat_a() {
 
 #elif defined(USE_FMT)
 
-#include "fmt/format.h"
+#include "fmt/core.h"
 
 void doFormat_a() {
   fmt::print("{}\n", "somefile.cpp");
@@ -143,7 +143,7 @@ def benchmark(flags):
     os.remove(output_filename)
   include_dir = '-I' + os.path.dirname(os.path.realpath(__file__))
   command = 'check_call({})'.format(
-    [compiler_path, '-std=c++11', '-o', output_filename, include_dir] + sources + flags)
+    [compiler_path, '-std=c++14', '-o', output_filename, include_dir] + sources + flags)
   result = Result()
   result.time = timeit(
     command, setup = 'from subprocess import check_call', number = 1)
@@ -154,7 +154,7 @@ def benchmark(flags):
   result.stripped_size = os.stat(output_filename).st_size
   print('Stripped size: {}'.format(result.stripped_size))
   p = Popen(['./' + output_filename], stdout=PIPE,
-            env={'LD_LIBRARY_PATH': 'fmt/fmt'})
+            env={'LD_LIBRARY_PATH': 'fmt'})
   output = p.communicate()[0]
   global expected_output
   if not expected_output:
@@ -169,14 +169,14 @@ configs = [
   ('debug',     [])
 ]
 
-fmt_library = 'fmt/fmt/libfmt.so'
+fmt_library = 'fmt/libfmt.so'
 if not os.path.exists(fmt_library):
   fmt_library = fmt_library.replace('.so', '.dylib')
 
 methods = [
   ('printf'      , []),
   ('IOStreams'   , ['-DUSE_IOSTREAMS']),
-  ('fmt'         , ['-DUSE_FMT', '-Ifmt', fmt_library]),
+  ('fmt'         , ['-DUSE_FMT', '-Ifmt/include', fmt_library]),
   ('tinyformat'  , ['-DUSE_TINYFORMAT']),
   ('Boost Format', ['-DUSE_BOOST']),
   ('Folly Format', ['-DUSE_FOLLY', '-lfolly'])

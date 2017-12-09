@@ -24,7 +24,7 @@ void varargs(benchmark::State& state) {
 
 BENCHMARK(varargs);
 
-void __attribute__((noinline)) test_vprint(const char *f, fmt::args) {
+void __attribute__((noinline)) test_vprint(const char *f, fmt::format_args) {
   benchmark::DoNotOptimize(f);
 }
 

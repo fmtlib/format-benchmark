@@ -11,12 +11,7 @@ endif ()
 project(FORMAT_BENCHMARKS)
 
 set(CMAKE_MACOSX_RPATH ON)
-
-include(CheckCXXCompilerFlag)
-check_cxx_compiler_flag(-std=c++11 HAVE_STD_CPP11_FLAG)
-if (HAVE_STD_CPP11_FLAG)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-endif ()
+set(CMAKE_CXX_STANDARD 14)
 
 # Use shared libraries to make comparison with IOStreams and printf
 # fair as these use shared libraries too (libstdc++ and libc).
@@ -111,6 +106,7 @@ add_custom_target(variadic-test
                   DEPENDS fmt)
 
 enable_testing()
+set(BENCHMARK_ENABLE_TESTING OFF)
 add_subdirectory(benchmark)
 add_subdirectory(digits10)
 add_executable(vararg-benchmark vararg-benchmark.cc)
