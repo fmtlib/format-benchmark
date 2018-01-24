@@ -293,7 +293,7 @@ int main()
         Report("karma::generate+std::string", v, time, size);
     }
 
-    // test fmt::basic_writer
+    // test fmt::writer
     {
         size = 0;
         util::high_resolution_timer t;
@@ -303,16 +303,17 @@ int main()
         for (int i = 0; i < MAX_ITERATION; ++i)
         {
             buffer.resize(0);
-            fmt::basic_writer<char> writer(buffer);
+            fmt::writer writer(buffer);
             writer.write(v[i]);
-            size += strlen(writer.c_str());
+	    buffer.push_back(0);
+            size += strlen(buffer.data());
         }
         //]
         double time = t.elapsed();
-        Report("fmt::basic_writer", v, time, size);
+        Report("fmt::writer", v, time, size);
     }
 
-        // test fmt::basic_writer
+    // test fmt::writer
     {
         size = 0;
         util::high_resolution_timer t;
@@ -322,16 +323,16 @@ int main()
         for (int i = 0; i < MAX_ITERATION; ++i)
         {
             buffer.resize(0);
-            fmt::basic_writer<char> writer(buffer);
+            fmt::writer writer(buffer);
             writer.write(v[i]);
             //<-
-            std::string str = writer.c_str();      // compensate for string ops in other benchmarks
+            std::string str = to_string(buffer);      // compensate for string ops in other benchmarks
             //->
             size += strlen(str.c_str());
         }
         //]
         double time = t.elapsed();
-        Report("fmt::basic_writer+std::string", v, time, size);
+        Report("fmt::writer+std::string", v, time, size);
     }
 
     // test fmt::format
