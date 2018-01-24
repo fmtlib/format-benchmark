@@ -50,11 +50,6 @@ TEST(Digits10Test, GenerateNumbers) {
   }
 }
 
-TEST(Digits10Test, RunBenchmark) {
-  benchmark::State state(1, {}, 0, 0, 0, 0);
-  run_benchmark(state, digits10_naive);
-}
-
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
