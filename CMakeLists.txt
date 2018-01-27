@@ -111,3 +111,8 @@ add_subdirectory(benchmark)
 add_subdirectory(digits10)
 add_executable(vararg-benchmark vararg-benchmark.cc)
 target_link_libraries(vararg-benchmark benchmark fmt)
+
+add_executable(format-int-benchmark format-int-benchmark.cc)
+target_link_libraries(format-int-benchmark benchmark fmt)
+set_target_properties(format-int-benchmark
+  PROPERTIES COMPILE_FLAGS -std=c++11)
