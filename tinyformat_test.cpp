@@ -19,6 +19,8 @@ namespace std { class type_info; }
 #ifdef HAVE_FOLLY
 # include <folly/Format.h>
 #endif
+#define STB_SPRINTF_IMPLEMENTATION
+#include "stb_sprintf.h"
 #include <iomanip>
 #include <stdio.h>
 #endif
@@ -133,6 +135,16 @@ void speedTest(const std::string& which)
 #else
         fprintf(stderr, "boost is not available\n");
 #endif
+    }
+    else if(which == "stb_sprintf")
+    {
+        char buf[100];
+        // stb_sprintf version
+        for(long i = 0; i < maxIter; ++i) {
+            stbsp_sprintf(buf, "%0.10f:%04d:%+g:%s:%p:%c:%%\n",
+                1.234, 42, 3.13, "str", (void*)1000, (int)'X');
+            fputs(buf, stdout);
+        }
     }
     else
     {
