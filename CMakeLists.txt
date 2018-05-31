@@ -77,6 +77,9 @@ if (WIN32)
 	COMMAND @echo boost timings: start %time%
 	COMMAND .\\tinyformat_speed_test.exe boost >NUL
 	COMMAND @echo stop %time%
+	COMMAND @echo stb_sprintf timings: start %time%
+	COMMAND .\\tinyformat_speed_test.exe stb_sprintf >NUL
+	COMMAND @echo stop %time%
 	DEPENDS tinyformat_speed_test)
 else()
   add_custom_target(speed-test
@@ -93,6 +96,8 @@ else()
 	COMMAND @time -p ./tinyformat_speed_test boost > /dev/null
         COMMAND @echo folly timings:
         COMMAND @time -p ./tinyformat_speed_test folly > /dev/null
+        COMMAND @echo stb_sprintf timings:
+        COMMAND @time -p ./tinyformat_speed_test stb_sprintf > /dev/null
 	DEPENDS tinyformat_speed_test)
 endif()
 
