@@ -66,6 +66,31 @@ void doFormat_a() {
   std::cout << "somefile.cpp:" << 42 << ':' << 1 << ':' << 2 << ":asdf" << "\n";
 }
 
+#elif defined(USE_STB_SPRINTF)
+
+#ifdef FIRST_FILE
+#  define STB_SPRINTF_IMPLEMENTATION
+#endif
+// since this test doesn't use floating point numbers shave ~20kb
+#define STB_SPRINTF_NOFLOAT
+
+#include "stb_sprintf.h"
+#include "stdio.h"
+
+void doFormat_a() {
+  char buf[100];
+  stbsp_sprintf(buf, "%s\n", "somefile.cpp");
+  fputs(buf, stdout);
+  stbsp_sprintf(buf, "%s:%d\n", "somefile.cpp", 42);
+  fputs(buf, stdout);
+  stbsp_sprintf(buf, "%s:%d:%s\n", "somefile.cpp", 42, "asdf");
+  fputs(buf, stdout);
+  stbsp_sprintf(buf, "%s:%d:%d:%s\n", "somefile.cpp", 42, 1, "asdf");
+  fputs(buf, stdout);
+  stbsp_sprintf(buf, "%s:%d:%d:%d:%s\n", "somefile.cpp", 42, 1, 2, "asdf");
+  fputs(buf, stdout);
+}
+
 #else
 # ifdef USE_TINYFORMAT
 #   include "tinyformat.h"
@@ -116,6 +141,8 @@ with nested(open(main_source, 'w'), open(main_header, 'w')) as \
     source = prefix + n + '.cc'
     sources.append(source)
     with open(source, 'w') as f:
+      if i == 0:
+        f.write('#define FIRST_FILE\n')
       f.write(template.replace('doFormat_a', func_name).replace('42', str(i)))
     main_file.write(func_name + '();\n')
     header_file.write('void ' + func_name + '();\n')
@@ -183,7 +210,8 @@ methods = [
   ('fmt'          , ['-DUSE_FMT', '-Ifmt/include', fmt_library]),
   ('tinyformat'   , ['-DUSE_TINYFORMAT']),
   ('Boost Format' , ['-DUSE_BOOST']),
-  ('Folly Format' , ['-DUSE_FOLLY', '-lfolly'])
+  ('Folly Format' , ['-DUSE_FOLLY', '-lfolly']),
+  ('stb_sprintf'  , ['-DUSE_STB_SPRINTF']),
 ]
 
 def format_field(field, format = '', width = ''):
