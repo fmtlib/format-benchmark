@@ -30,7 +30,7 @@ void __attribute__((noinline)) test_vprint(const char *f, fmt::format_args) {
 
 template <typename ... Args>
 inline void test_print(const char *format, const Args & ... args) {
-  test_vprint(format, fmt::make_args<fmt::context>(args...));
+  test_vprint(format, fmt::make_format_args(args...));
 }
 
 void fmt_variadic(benchmark::State &state) {

@@ -359,7 +359,7 @@ int main()
         for (int i = 0; i < MAX_ITERATION; ++i)
         {
             //<-
-            size += strlen(fmt::FormatInt(v[i]).c_str());
+            size += strlen(fmt::format_int(v[i]).c_str());
             //->
         }
         //]
