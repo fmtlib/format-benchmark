@@ -305,7 +305,7 @@ int main()
             buffer.resize(0);
             fmt::writer writer(buffer);
             writer.write(v[i]);
-	    buffer.push_back(0);
+            buffer.push_back(0);
             size += strlen(buffer.data());
         }
         //]
@@ -343,14 +343,31 @@ int main()
         //[karma_int_performance_format_format
         for (int i = 0; i < MAX_ITERATION; ++i)
         {
-            size += strlen(fmt::format("{}", v[i]).c_str());
+            size += strlen(fmt::format(FMT_STRING("{}"), v[i]).c_str());
         }
         //]
         double time = t.elapsed();
         Report("fmt::format", v, time, size);
     }
 
-    // test fmt::FormatInt
+    // test fmt::format_to
+    {
+        size = 0;
+        util::high_resolution_timer t;
+
+        char buffer[65]; // we don't expect more than 64 bytes to be generated here
+        for (int i = 0; i < MAX_ITERATION; ++i)
+        {
+            char *ptr = fmt::format_to(buffer, "{}", v[i]);
+            *ptr = '\0';
+            size += strlen(buffer);
+        }
+        //]
+        double time = t.elapsed();
+        Report("fmt::format_to", v, time, size);
+    }
+
+    // test fmt::format_int
     {
         size = 0;
         util::high_resolution_timer t;
@@ -364,7 +381,7 @@ int main()
         }
         //]
         double time = t.elapsed();
-        Report("fmt::FormatInt", v, time, size);
+        Report("fmt::format_int", v, time, size);
     }
 
     // test cppx::decimal_from
