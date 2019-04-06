@@ -121,3 +121,6 @@ add_executable(format-int-benchmark format-int-benchmark.cc)
 target_link_libraries(format-int-benchmark benchmark fmt)
 set_target_properties(format-int-benchmark
   PROPERTIES COMPILE_FLAGS -std=c++11)
+
+add_executable(find-pow10-benchmark find-pow10-benchmark.cc)
+target_link_libraries(find-pow10-benchmark benchmark)
