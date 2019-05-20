@@ -12,6 +12,7 @@ namespace std { class type_info; }
 #ifdef SPEED_TEST
 #ifdef HAVE_FORMAT
 # include "fmt/format.h"
+# include "fmt/prepare.h"
 #endif
 #ifdef HAVE_BOOST
 # include <boost/format.hpp>
@@ -112,6 +113,20 @@ void speedTest(const std::string& which)
         for(long i = 0; i < maxIter; ++i)
             fmt::print("{:.10f}:{:04}:{:+}:{}:{}:{}:%\n",
                 1.234, 42, 3.13, "str", (void*)1000, 'X');
+    }
+    else if(which == "fmt::prepare")
+    {
+        // format::prepare version.
+        const auto prepared_format =
+            fmt::prepare<double, int, double, const char*, void*, char>("{:.10f}:{:04}:{:+}:{}:{}:{}:%\n");
+        fmt::basic_memory_buffer<char, 1024> buffer;
+        for(long i = 0; i < maxIter; ++i)
+        {
+            auto finished_at =
+                prepared_format.format_to(buffer, 1.234, 42, 3.13, "str", (void*)1000, 'X');
+            *finished_at = '\0';
+            std::puts(buffer.data());
+        }
     }
 #endif
     else if(which == "folly")
