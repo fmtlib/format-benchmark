@@ -83,21 +83,23 @@ if (WIN32)
 	DEPENDS tinyformat_speed_test)
 else()
   add_custom_target(speed-test
-        COMMAND @echo running speed tests...
+  COMMAND @echo running speed tests...
 	COMMAND @echo printf timings:
 	COMMAND @time -p ./tinyformat_speed_test printf > /dev/null
 	COMMAND @echo iostreams timings:
 	COMMAND @time -p ./tinyformat_speed_test iostreams > /dev/null
 	COMMAND @echo format timings:
 	COMMAND @time -p ./tinyformat_speed_test format > /dev/null
+	COMMAND @echo fmt::prepare timings:
+	COMMAND @time -p ./tinyformat_speed_test fmt::prepare > /dev/null
 	COMMAND @echo tinyformat timings:
 	COMMAND @time -p ./tinyformat_speed_test tinyformat > /dev/null
 	COMMAND @echo boost timings:
 	COMMAND @time -p ./tinyformat_speed_test boost > /dev/null
-        COMMAND @echo folly timings:
-        COMMAND @time -p ./tinyformat_speed_test folly > /dev/null
-        COMMAND @echo stb_sprintf timings:
-        COMMAND @time -p ./tinyformat_speed_test stb_sprintf > /dev/null
+  COMMAND @echo folly timings:
+  COMMAND @time -p ./tinyformat_speed_test folly > /dev/null
+  COMMAND @echo stb_sprintf timings:
+  COMMAND @time -p ./tinyformat_speed_test stb_sprintf > /dev/null
 	DEPENDS tinyformat_speed_test)
 endif()
 
