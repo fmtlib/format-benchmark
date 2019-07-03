@@ -26,7 +26,6 @@ namespace std { class type_info; }
 #include <stdio.h>
 #endif
 
-
 // Throw instead of abort() so we can test error conditions.
 #define TINYFORMAT_ERROR(reason) \
     throw std::runtime_error(reason);
@@ -116,16 +115,17 @@ void speedTest(const std::string& which)
     }
     else if(which == "fmt::prepare")
     {
-        // format::prepare version.
+        // fmt::prepare version.
         const auto prepared_format =
-            fmt::prepare<double, int, double, const char*, void*, char>("{:.10f}:{:04}:{:+}:{}:{}:{}:%\n");
-        fmt::basic_memory_buffer<char, 1024> buffer;
+            fmt::prepare<double, int, double, const char*, void*, char>(
+                "{:.10f}:{:04}:{:+}:{}:{}:{}:%\n");
         for(long i = 0; i < maxIter; ++i)
         {
-            auto finished_at =
-                prepared_format.format_to(buffer, 1.234, 42, 3.13, "str", (void*)1000, 'X');
+            fmt::memory_buffer buf;
+            auto finished_at = prepared_format.format_to(
+                buf, 1.234, 42, 3.13, "str", (void*)1000, 'X');
             *finished_at = '\0';
-            std::puts(buffer.data());
+            std::puts(buf.data());
         }
     }
 #endif
