@@ -11,7 +11,7 @@ endif ()
 project(FORMAT_BENCHMARKS)
 
 set(CMAKE_MACOSX_RPATH ON)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 # Use shared libraries to make comparison with IOStreams and printf
 # fair as these use shared libraries too (libstdc++ and libc).
@@ -90,8 +90,8 @@ else()
 	COMMAND @time -p ./tinyformat_speed_test iostreams > /dev/null
 	COMMAND @echo format timings:
 	COMMAND @time -p ./tinyformat_speed_test format > /dev/null
-	COMMAND @echo fmt::prepare timings:
-	COMMAND @time -p ./tinyformat_speed_test fmt::prepare > /dev/null
+	COMMAND @echo fmt::compile timings:
+	COMMAND @time -p ./tinyformat_speed_test fmt::compile > /dev/null
 	COMMAND @echo tinyformat timings:
 	COMMAND @time -p ./tinyformat_speed_test tinyformat > /dev/null
 	COMMAND @echo boost timings:
