@@ -23,7 +23,7 @@
 
 extern "C" char *ltoa(long N, char *str, int base)
 {
-      register int i = 2;
+      int i = 2;
       long uarg;
       char *tail, *head = str, buf[BUFSIZE];
 
@@ -43,7 +43,7 @@ extern "C" char *ltoa(long N, char *str, int base)
       {
             for (i = 1; uarg; ++i)
             {
-                  register ldiv_t r;
+                  ldiv_t r;
 
                   r       = ldiv(uarg, base);
                   *tail-- = (char)(r.rem + ((9L < r.rem) ?
