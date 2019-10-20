@@ -2,6 +2,7 @@
 #include <cmath>
 #include <cstdio>
 #include <limits>
+#include <random>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -36,7 +37,9 @@ std::vector<T> generate_random_data(int numbers_per_digit) {
       return result;
     });
   }
-  std::random_shuffle(data.begin(), data.end());
+  std::random_device rd;
+  std::mt19937 gen;
+  std::shuffle(data.begin(), data.end(), gen);
   return data;
 }
 
