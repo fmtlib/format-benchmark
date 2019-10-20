@@ -11,10 +11,11 @@
 #include <limits>       // std::numeric_limits
 #include <algorithm>    // std::reverse
 #include <boost/format.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "high_resolution_timer.hpp"
 
-#include "fmt/format.h"
+#include "fmt/compile.h"
 
 //  This value specifies, how to unroll the integer string generation loop in
 //  Karma.
@@ -365,6 +366,24 @@ int main()
         //]
         double time = t.elapsed();
         Report("fmt::format_to", v, time, size);
+    }
+
+    // test fmt::compile + fmt::format_to
+    {
+        size = 0;
+        util::high_resolution_timer t;
+
+        char buffer[65]; // we don't expect more than 64 bytes to be generated here
+        for (int i = 0; i < MAX_ITERATION; ++i)
+        {
+            constexpr auto f = fmt::compile<int>(FMT_STRING("{}"));
+            char *ptr = fmt::format_to(buffer, f, v[i]);
+            *ptr = '\0';
+            size += strlen(buffer);
+        }
+        //]
+        double time = t.elapsed();
+        Report("fmt::compile", v, time, size);
     }
 
     // test fmt::format_int
