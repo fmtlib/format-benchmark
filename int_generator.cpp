@@ -294,48 +294,6 @@ int main()
         Report("karma::generate+std::string", v, time, size);
     }
 
-    // test fmt::writer
-    {
-        size = 0;
-        util::high_resolution_timer t;
-
-        //[karma_int_performance_format_write
-        fmt::memory_buffer buffer;
-        for (int i = 0; i < MAX_ITERATION; ++i)
-        {
-            buffer.resize(0);
-            fmt::writer writer(buffer);
-            writer.write(v[i]);
-            buffer.push_back(0);
-            size += strlen(buffer.data());
-        }
-        //]
-        double time = t.elapsed();
-        Report("fmt::writer", v, time, size);
-    }
-
-    // test fmt::writer
-    {
-        size = 0;
-        util::high_resolution_timer t;
-
-        //[karma_int_performance_format_write
-        fmt::memory_buffer buffer;
-        for (int i = 0; i < MAX_ITERATION; ++i)
-        {
-            buffer.resize(0);
-            fmt::writer writer(buffer);
-            writer.write(v[i]);
-            //<-
-            std::string str = to_string(buffer);      // compensate for string ops in other benchmarks
-            //->
-            size += strlen(str.c_str());
-        }
-        //]
-        double time = t.elapsed();
-        Report("fmt::writer+std::string", v, time, size);
-    }
-
     // test fmt::format
     {
         util::high_resolution_timer t;
