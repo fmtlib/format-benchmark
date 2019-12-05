@@ -1,12 +1,15 @@
+// A decimal integer to string conversion benchmark
+//
+// Copyright (c) 2019 - present, Victor Zverovich
+// All rights reserved.
+
 #include <algorithm>
-#include <cmath>
 #include <cstdio>
+#include <cstdlib>
 #include <limits>
-#include <random>
+#include <vector>
 #include <sstream>
 #include <string>
-#include <utility>
-#include <vector>
 
 #include <benchmark/benchmark.h>
 #include <fmt/compile.h>
@@ -15,6 +18,7 @@
 #include <boost/spirit/include/karma.hpp>
 #include "itostr.cc"
 
+// Integer to string converter by Alf P. Steinbach.
 namespace cppx {
 using std::numeric_limits;
 using std::reverse;
@@ -47,18 +51,16 @@ inline auto to_decimal(long number, char* buffer) {
   }
 }
 
-// Integer to string converter by Alf P. Steinbach.
 inline auto decimal_from(long number, char* buffer) -> const char* {
   return to_decimal(number, buffer);
 }
 }  // namespace cppx
 
-#define BUFSIZE (sizeof(long) * 8 + 1)
-
 // Public domain ltoa by Robert B. Stout dba MicroFirm.
 char* ltoa(long N, char* str, int base) {
   int i = 2;
   long uarg;
+  constexpr auto BUFSIZE = (sizeof(long) * 8 + 1);
   char *tail, *head = str, buf[BUFSIZE];
 
   if (36 < base || 2 > base) base = 10; /* can only use 0-9, A-Z        */
@@ -87,6 +89,8 @@ char* ltoa(long N, char* str, int base) {
 }
 
 std::vector<int> generate_random_data() {
+  // Data is the same as in Boost Karma int generator test:
+  // https://www.boost.org/doc/libs/1_63_0/libs/spirit/workbench/karma/int_generator.cpp
   std::srand(0);
   std::vector<int> data(10'000'000);
   std::generate(data.begin(), data.end(), []() {
