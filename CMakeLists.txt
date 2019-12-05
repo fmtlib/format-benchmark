@@ -15,21 +15,12 @@ set(CMAKE_CXX_STANDARD 17)
 
 # Use shared libraries to make comparison with IOStreams and printf
 # fair as these use shared libraries too (libstdc++ and libc).
-set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared library instead of static one")
+set(BUILD_SHARED_LIBS ON CACHE BOOL
+    "Build shared library instead of static one")
 set(FMT_TEST TRUE CACHE BOOL "Enable fmt tests")
 add_subdirectory(fmt)
 
 find_package(Boost)
-if (Boost_FOUND)
-  add_definitions(-DHAVE_BOOST)
-  include_directories(${Boost_INCLUDE_DIRS})
-  add_executable(int-generator int_generator.cpp ltoa.cc)
-  target_link_libraries(int-generator fmt)
-  find_library(HAVE_RT rt)
-  if (HAVE_RT)
-    target_link_libraries(int-generator rt)
-  endif ()
-endif ()
 
 find_path(FOLLY_INCLUDE_DIR folly/Format.h)
 find_library(FOLLY_LIB folly)
@@ -122,10 +113,9 @@ target_link_libraries(vararg-benchmark benchmark fmt)
 add_executable(double-benchmark src/double-benchmark.cc src/dtoa_milo.h)
 target_link_libraries(double-benchmark benchmark fmt)
 
-add_executable(format-int-benchmark format-int-benchmark.cc)
-target_link_libraries(format-int-benchmark benchmark fmt)
-set_target_properties(format-int-benchmark
-  PROPERTIES COMPILE_FLAGS -std=c++11)
+add_executable(int-benchmark int-benchmark.cc)
+target_link_libraries(int-benchmark benchmark Boost::boost fmt)
+target_compile_features(int-benchmark PRIVATE cxx_relaxed_constexpr)
 
 add_executable(find-pow10-benchmark find-pow10-benchmark.cc)
 target_link_libraries(find-pow10-benchmark benchmark)
