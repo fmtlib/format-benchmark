@@ -90,8 +90,27 @@ struct Data {
   auto begin() const { return values.begin(); }
   auto end() const { return values.end(); }
 
+  // Prints the number of values by digit count, e.g.
+  //  1  27263
+  //  2 247132
+  //  3 450601
+  //  4 246986
+  //  5  25188
+  //  6   2537
+  //  7    251
+  //  8     39
+  //  9      2
+  // 10      1
+  void print_digit_counts() const {
+    int counts[11] = {};
+    for (auto value : values)
+      ++counts[fmt::format_int(value).size()];
+    for (int i = 1; i < 11; ++i)
+      fmt::print("{:2} {:6}\n", i, counts[i]);
+  }
+
   Data() : values(1'000'000) {
-    // Data is the same as in Boost Karma int generator test:
+    // Same data as in Boost Karma int generator test:
     // https://www.boost.org/doc/libs/1_63_0/libs/spirit/workbench/karma/int_generator.cpp
     std::srand(0);
     std::generate(values.begin(), values.end(), []() {
@@ -103,6 +122,7 @@ struct Data {
           char buffer[12];
           return lhs + std::sprintf(buffer, "%d", rhs);
         });
+    print_digit_counts();
   }
 } data;
 
