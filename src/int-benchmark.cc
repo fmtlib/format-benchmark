@@ -90,7 +90,7 @@ struct Data {
   auto begin() const { return values.begin(); }
   auto end() const { return values.end(); }
 
-  Data() : values(10'000'000) {
+  Data() : values(1'000'000) {
     // Data is the same as in Boost Karma int generator test:
     // https://www.boost.org/doc/libs/1_63_0/libs/spirit/workbench/karma/int_generator.cpp
     std::srand(0);
