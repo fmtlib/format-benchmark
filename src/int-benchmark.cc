@@ -7,6 +7,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <limits>
+#include <numeric>
 #include <vector>
 #include <sstream>
 #include <string>
@@ -18,15 +19,9 @@
 #include <boost/spirit/include/karma.hpp>
 #include "itostr.cc"
 
-// Integer to string converter by Alf P. Steinbach.
+// Integer to string converter by Alf P. Steinbach modified to return a pointer
+// past the end of the output to avoid calling strlen.
 namespace cppx {
-using std::numeric_limits;
-using std::reverse;
-
-typedef numeric_limits<long> Long_info;
-const int long_digits = Long_info::max_digits10;
-const int long_bufsize = long_digits + 2;
-
 inline auto unsigned_to_decimal(unsigned long number, char* buffer) {
   if (number == 0) {
     *buffer++ = '0';
@@ -36,7 +31,7 @@ inline auto unsigned_to_decimal(unsigned long number, char* buffer) {
       *buffer++ = '0' + number % 10;
       number /= 10;
     }
-    reverse(p_first, buffer);
+    std::reverse(p_first, buffer);
   }
   *buffer = '\0';
   return buffer;
@@ -51,7 +46,7 @@ inline auto to_decimal(long number, char* buffer) {
   }
 }
 
-inline auto decimal_from(long number, char* buffer) -> const char* {
+inline auto decimal_from(long number, char* buffer) {
   return to_decimal(number, buffer);
 }
 }  // namespace cppx
@@ -88,22 +83,32 @@ char* ltoa(long N, char* str, int base) {
   return str;
 }
 
-std::vector<int> generate_random_data() {
-  // Data is the same as in Boost Karma int generator test:
-  // https://www.boost.org/doc/libs/1_63_0/libs/spirit/workbench/karma/int_generator.cpp
-  std::srand(0);
-  std::vector<int> data(10'000'000);
-  std::generate(data.begin(), data.end(), []() {
-    int scale = std::rand() / 100 + 1;
-    return (std::rand() * std::rand()) / scale;
-  });
-  return data;
-}
+struct Data {
+  std::vector<int> values;
+  size_t total_length;
 
-auto data = generate_random_data();
+  auto begin() const { return values.begin(); }
+  auto end() const { return values.end(); }
+
+  Data() : values(10'000'000) {
+    // Data is the same as in Boost Karma int generator test:
+    // https://www.boost.org/doc/libs/1_63_0/libs/spirit/workbench/karma/int_generator.cpp
+    std::srand(0);
+    std::generate(values.begin(), values.end(), []() {
+      int scale = std::rand() / 100 + 1;
+      return (std::rand() * std::rand()) / scale;
+    });
+    total_length = std::accumulate(begin(), end(), size_t(), [](size_t lhs, int rhs) {
+      char buffer[12];
+      return lhs + std::sprintf(buffer, "%d", rhs);
+    });
+  }
+} data;
 
 void finalize(benchmark::State& state, size_t result) {
-  state.SetItemsProcessed(state.iterations() * data.size());
+  if (result != state.iterations() * data.total_length)
+    throw std::logic_error("invalid length");
+  state.SetItemsProcessed(state.iterations() * data.values.size());
   benchmark::DoNotOptimize(result);
 }
 
@@ -236,6 +241,7 @@ void decimal_from(benchmark::State& state) {
       result += cppx::decimal_from(value, buffer) - buffer;
     }
   }
+  benchmark::DoNotOptimize(result);
   finalize(state, result);
 }
 BENCHMARK(decimal_from);
@@ -245,7 +251,8 @@ void stout_ltoa(benchmark::State& state) {
   while (state.KeepRunning()) {
     for (auto value : data) {
       char buffer[12];
-      result += ltoa(value, buffer, 10) - buffer;
+      // ltoa doesn't give the size so we have to call strlen.
+      result += strlen(ltoa(value, buffer, 10));
     }
   }
   finalize(state, result);
