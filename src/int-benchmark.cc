@@ -261,5 +261,3 @@ void stout_ltoa(benchmark::State& state) {
 BENCHMARK(stout_ltoa);
 
 BENCHMARK_MAIN();
-
-// TODO: test
