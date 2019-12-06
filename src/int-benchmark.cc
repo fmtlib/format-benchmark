@@ -8,9 +8,9 @@
 #include <cstdlib>
 #include <limits>
 #include <numeric>
-#include <vector>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include <benchmark/benchmark.h>
 #include <fmt/compile.h>
@@ -98,10 +98,11 @@ struct Data {
       int scale = std::rand() / 100 + 1;
       return (std::rand() * std::rand()) / scale;
     });
-    total_length = std::accumulate(begin(), end(), size_t(), [](size_t lhs, int rhs) {
-      char buffer[12];
-      return lhs + std::sprintf(buffer, "%d", rhs);
-    });
+    total_length =
+        std::accumulate(begin(), end(), size_t(), [](size_t lhs, int rhs) {
+          char buffer[12];
+          return lhs + std::sprintf(buffer, "%d", rhs);
+        });
   }
 } data;
 
