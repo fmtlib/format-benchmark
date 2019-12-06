@@ -105,6 +105,7 @@ struct Data {
     int counts[11] = {};
     for (auto value : values)
       ++counts[fmt::format_int(value).size()];
+    fmt::print("The number of values by digit count:\n");
     for (int i = 1; i < 11; ++i)
       fmt::print("{:2} {:6}\n", i, counts[i]);
   }
