@@ -47,7 +47,7 @@ struct Data {
       fmt::print("{:2} {:6}\n", i, counts[i]);
   }
 
-  Data() : values(100) {
+  Data() : values(1'000'000) {
     // Same data as in Boost Karma int generator test:
     // https://www.boost.org/doc/libs/1_63_0/libs/spirit/workbench/karma/int_generator.cpp
     std::srand(0);
