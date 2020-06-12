@@ -178,6 +178,16 @@ void format(benchmark::State& state) {
 }
 BENCHMARK(format);
 
+void format_compile(benchmark::State& state) {
+  size_t result = 0;
+  while (state.KeepRunning()) {
+    for (auto value : data)
+      result += fmt::format(FMT_COMPILE("{}"), value).size();
+  }
+  finalize(state, result);
+}
+BENCHMARK(format_compile);
+
 void format_to(benchmark::State& state) {
   size_t result = 0;
   while (state.KeepRunning()) {
