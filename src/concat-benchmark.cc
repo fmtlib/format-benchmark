@@ -17,6 +17,7 @@ void naive(benchmark::State& state) {
     benchmark::DoNotOptimize(output.data());
   }
 }
+BENCHMARK(naive);
 
 void append(benchmark::State& state) {
   benchmark::ClobberMemory();
@@ -35,6 +36,7 @@ void append(benchmark::State& state) {
     benchmark::DoNotOptimize(output.data());
   }
 }
+BENCHMARK(append);
 
 void appendWithReserve(benchmark::State& state) {
   benchmark::ClobberMemory();
@@ -55,8 +57,19 @@ void appendWithReserve(benchmark::State& state) {
     benchmark::DoNotOptimize(output.data());
   }
 }
+BENCHMARK(appendWithReserve);
 
-void format(benchmark::State& state) {
+void format_compile(benchmark::State& state) {
+  benchmark::ClobberMemory();
+  for (auto _ : state) {
+    auto output = fmt::format(FMT_COMPILE("Result: {}: ({},{},{},{})"), str1,
+                              str2, str3, str4, str5);
+    benchmark::DoNotOptimize(output.data());
+  }
+}
+BENCHMARK(format_compile);
+
+void format_runtime(benchmark::State& state) {
   benchmark::ClobberMemory();
   for (auto _ : state) {
     auto output =
@@ -64,6 +77,7 @@ void format(benchmark::State& state) {
     benchmark::DoNotOptimize(output.data());
   }
 }
+BENCHMARK(format_runtime);
 
 void format_to(benchmark::State& state) {
   benchmark::ClobberMemory();
@@ -74,17 +88,13 @@ void format_to(benchmark::State& state) {
     benchmark::DoNotOptimize(output.data());
   }
 }
+BENCHMARK(format_to);
 
 void nullop(benchmark::State& state) {
   for (auto _ : state) {
     benchmark::ClobberMemory();
   }
 }
-
-BENCHMARK(naive);
-BENCHMARK(append);
-BENCHMARK(appendWithReserve);
-BENCHMARK(format);
-BENCHMARK(format_to);
 BENCHMARK(nullop);
+
 BENCHMARK_MAIN();
