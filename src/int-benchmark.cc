@@ -3,20 +3,22 @@
 // Copyright (c) 2019 - present, Victor Zverovich
 // All rights reserved.
 
+#include <benchmark/benchmark.h>
+#include <fmt/compile.h>
+
 #include <algorithm>
+#include <boost/format.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/spirit/include/karma.hpp>
 #include <cstdio>
 #include <cstdlib>
 #include <limits>
 #include <numeric>
+#include <random>
 #include <sstream>
 #include <string>
 #include <vector>
 
-#include <benchmark/benchmark.h>
-#include <fmt/compile.h>
-#include <boost/format.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/spirit/include/karma.hpp>
 #include "itostr.cc"
 
 // Integer to string converter by Alf P. Steinbach modified to return a pointer
@@ -103,20 +105,22 @@ struct Data {
   // 10      1
   void print_digit_counts() const {
     int counts[11] = {};
-    for (auto value : values)
-      ++counts[fmt::format_int(value).size()];
+    for (auto value : values) ++counts[fmt::format_int(value).size()];
     fmt::print("The number of values by digit count:\n");
-    for (int i = 1; i < 11; ++i)
-      fmt::print("{:2} {:6}\n", i, counts[i]);
+    for (int i = 1; i < 11; ++i) fmt::print("{:2} {:6}\n", i, counts[i]);
   }
 
   Data() : values(1'000'000) {
-    // Same data as in Boost Karma int generator test:
+    // Similar data as in Boost Karma int generator test:
     // https://www.boost.org/doc/libs/1_63_0/libs/spirit/workbench/karma/int_generator.cpp
-    std::srand(0);
-    std::generate(values.begin(), values.end(), []() {
-      int scale = std::rand() / 100 + 1;
-      return (std::rand() * std::rand()) / scale;
+    // with rand replaced by uniform_int_distribution for consistent results
+    // across platforms.
+    std::mt19937 gen;
+    std::uniform_int_distribution<unsigned> dist(
+        0, (std::numeric_limits<int>::max)());
+    std::generate(values.begin(), values.end(), [&]() {
+      int scale = dist(gen) / 100 + 1;
+      return static_cast<int>(dist(gen) * dist(gen)) / scale;
     });
     total_length =
         std::accumulate(begin(), end(), size_t(), [](size_t lhs, int rhs) {
