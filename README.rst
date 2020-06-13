@@ -15,29 +15,31 @@ Building and running ``int-benchmark``:
 
 .. code::
 
-  2019-12-05 17:42:51
-  Running ./int-benchmark
-  Run on (4 X 3500 MHz CPU s)
-  CPU Caches:
-    L1 Data 32K (x2)
-    L1 Instruction 32K (x2)
-    L2 Unified 262K (x2)
-    L3 Unified 4194K (x1)
-  Load Average: 2.54, 4.70, 5.89
-  -------------------------------------------------------------------------------
-  Benchmark                     Time             CPU   Iterations UserCounters...
-  -------------------------------------------------------------------------------
-  sprintf                65568024 ns     65138818 ns           11 items_per_second=15.3518M/s
-  ostringstream         167387783 ns    166251750 ns            4 items_per_second=6.01497M/s
-  to_string              89624630 ns     89081500 ns            8 items_per_second=11.2257M/s
-  format                 35467244 ns     35385700 ns           20 items_per_second=28.26M/s
-  format_to              23738393 ns     23682133 ns           30 items_per_second=42.2259M/s
-  format_to_compile       8250425 ns      8235280 ns           82 items_per_second=121.429M/s
-  format_int              8115486 ns      8092583 ns           84 items_per_second=123.57M/s
-  lexical_cast           31042594 ns     30936609 ns           23 items_per_second=32.3242M/s
-  boost_format          338535980 ns    337967000 ns            2 items_per_second=2.95887M/s
-  boost_karma_generate   12525130 ns     12458764 ns           55 items_per_second=80.2648M/s
-  voigt_itostr           17066540 ns     17032610 ns           41 items_per_second=58.7109M/s
-  decimal_from           10044434 ns     10027072 ns           69 items_per_second=99.73M/s
-  stout_ltoa             40864801 ns     40756647 ns           17 items_per_second=24.5359M/s 
+    2020-06-13 07:53:52
+    Running ./int-benchmark
+    Run on (8 X 2800 MHz CPU s)
+    CPU Caches:
+      L1 Data 32K (x4)
+      L1 Instruction 32K (x4)
+      L2 Unified 262K (x4)
+      L3 Unified 8388K (x1)
+    Load Average: 2.25, 2.19, 2.56
+    -------------------------------------------------------------------------------
+    Benchmark                     Time             CPU   Iterations UserCounters...
+    -------------------------------------------------------------------------------
+    sprintf                63208047 ns     63063727 ns           11 items_per_second=15.857M/s
+    ostringstream         152176979 ns    151975600 ns            5 items_per_second=6.58M/s
+    to_string              14826185 ns     14798865 ns           52 items_per_second=67.5727M/s
+    format                 18501672 ns     18484917 ns           36 items_per_second=54.0982M/s
+    format_compile         13791866 ns     13770143 ns           49 items_per_second=72.6209M/s
+    format_to              11845735 ns     11830586 ns           58 items_per_second=84.5267M/s
+    format_to_compile       8059886 ns      8051549 ns           82 items_per_second=124.2M/s
+    format_int              5530719 ns      5524033 ns          123 items_per_second=181.027M/s
+    lexical_cast           28058332 ns     28017920 ns           25 items_per_second=35.6914M/s
+    boost_format          323923950 ns    323532000 ns            2 items_per_second=3.09088M/s
+    boost_karma_generate   11482504 ns     11472267 ns           60 items_per_second=87.1667M/s
+    voigt_itostr           16637843 ns     16606341 ns           41 items_per_second=60.218M/s
+    decimal_from            9433401 ns      9418366 ns           71 items_per_second=106.176M/s
+    stout_ltoa             36457529 ns     36436263 ns           19 items_per_second=27.4452M/s
+
    
