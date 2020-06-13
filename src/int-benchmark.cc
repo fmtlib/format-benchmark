@@ -86,9 +86,15 @@ char* ltoa(long N, char* str, int base) {
   return str;
 }
 
+inline unsigned sum(fmt::string_view data) {
+  unsigned result = 0;
+  for (char c : data) result += c;
+  return result;
+}
+
 struct Data {
   std::vector<int> values;
-  size_t total_length;
+  unsigned total_length;
 
   auto begin() const { return values.begin(); }
   auto end() const { return values.end(); }
@@ -124,27 +130,29 @@ struct Data {
       return static_cast<int>(dist(gen) * dist(gen)) / scale;
     });
     total_length =
-        std::accumulate(begin(), end(), size_t(), [](size_t lhs, int rhs) {
+        std::accumulate(begin(), end(), unsigned(), [](unsigned lhs, int rhs) {
           char buffer[12];
-          return lhs + std::sprintf(buffer, "%d", rhs);
+          unsigned size = std::sprintf(buffer, "%d", rhs);
+          return lhs + sum({buffer, size});
         });
     print_digit_counts();
   }
 } data;
 
-void finalize(benchmark::State& state, size_t result) {
-  if (result != state.iterations() * data.total_length)
+void finalize(benchmark::State& state, unsigned result) {
+  if (result != static_cast<unsigned>(state.iterations()) * data.total_length)
     throw std::logic_error("invalid length");
   state.SetItemsProcessed(state.iterations() * data.values.size());
   benchmark::DoNotOptimize(result);
 }
 
 void sprintf(benchmark::State& state) {
-  size_t result = 0;
+  unsigned result = 0;
   while (state.KeepRunning()) {
     for (auto value : data) {
       char buffer[12];
-      result += std::sprintf(buffer, "%d", value);
+      unsigned size = std::sprintf(buffer, "%d", value);
+      result += sum({buffer, size});
     }
   }
   finalize(state, result);
@@ -152,13 +160,14 @@ void sprintf(benchmark::State& state) {
 BENCHMARK(sprintf);
 
 void ostringstream(benchmark::State& state) {
-  size_t result = 0;
+  unsigned result = 0;
   std::ostringstream os;
   while (state.KeepRunning()) {
     for (auto value : data) {
       os.str(std::string());
       os << value;
-      result += os.str().size();
+      std::string s = os.str();
+      result += sum(s);
     }
   }
   finalize(state, result);
@@ -166,21 +175,25 @@ void ostringstream(benchmark::State& state) {
 BENCHMARK(ostringstream);
 
 void to_string(benchmark::State& state) {
-  size_t result = 0;
+  unsigned result = 0;
   while (state.KeepRunning()) {
-    for (auto value : data) result += std::to_string(value).size();
+    for (auto value : data) {
+      std::string s = std::to_string(value);
+      result += sum(s);
+    }
   }
   finalize(state, result);
 }
 BENCHMARK(to_string);
 
 void to_chars(benchmark::State& state) {
-  size_t result = 0;
+  unsigned result = 0;
   while (state.KeepRunning()) {
     for (auto value : data) {
       char buffer[12];
       auto res = std::to_chars(buffer, buffer + sizeof(buffer), value);
-      result += res.ptr - buffer;
+      unsigned size = res.ptr - buffer;
+      result += sum({buffer, size});
     }
   }
   finalize(state, result);
@@ -188,30 +201,37 @@ void to_chars(benchmark::State& state) {
 BENCHMARK(to_chars);
 
 void format(benchmark::State& state) {
-  size_t result = 0;
+  unsigned result = 0;
   while (state.KeepRunning()) {
-    for (auto value : data) result += fmt::format("{}", value).size();
+    for (auto value : data) {
+      std::string s = fmt::format("{}", value);
+      result += sum(s);
+    }
   }
   finalize(state, result);
 }
 BENCHMARK(format);
 
 void format_compile(benchmark::State& state) {
-  size_t result = 0;
+  unsigned result = 0;
   while (state.KeepRunning()) {
-    for (auto value : data)
-      result += fmt::format(FMT_COMPILE("{}"), value).size();
+    for (auto value : data) {
+      std::string s = fmt::format(FMT_COMPILE("{}"), value);
+      result += sum(s);
+    }
   }
   finalize(state, result);
 }
 BENCHMARK(format_compile);
 
 void format_to(benchmark::State& state) {
-  size_t result = 0;
+  unsigned result = 0;
   while (state.KeepRunning()) {
     for (auto value : data) {
       char buffer[12];
-      result += fmt::format_to(buffer, "{}", value) - buffer;
+      auto end = fmt::format_to(buffer, "{}", value);
+      unsigned size = end - buffer;
+      result += sum({buffer, size});
     }
   }
   finalize(state, result);
@@ -219,12 +239,14 @@ void format_to(benchmark::State& state) {
 BENCHMARK(format_to);
 
 void format_to_compile(benchmark::State& state) {
-  size_t result = 0;
+  unsigned result = 0;
   while (state.KeepRunning()) {
     for (auto value : data) {
       char buffer[12];
       constexpr auto f = fmt::compile<int>(FMT_STRING("{}"));
-      result += fmt::format_to(buffer, f, value) - buffer;
+      auto end = fmt::format_to(buffer, f, value);
+      unsigned size = end - buffer;
+      result += sum({buffer, size});
     }
   }
   finalize(state, result);
@@ -232,42 +254,51 @@ void format_to_compile(benchmark::State& state) {
 BENCHMARK(format_to_compile);
 
 void format_int(benchmark::State& state) {
-  size_t result = 0;
+  unsigned result = 0;
   while (state.KeepRunning()) {
-    for (auto value : data) result += fmt::format_int(value).size();
+    for (auto value : data) {
+      auto f = fmt::format_int(value);
+      result += sum({f.data(), f.size()});
+    }
   }
   finalize(state, result);
 }
 BENCHMARK(format_int);
 
 void lexical_cast(benchmark::State& state) {
-  size_t result = 0;
+  unsigned result = 0;
   while (state.KeepRunning()) {
-    for (auto value : data)
-      result += boost::lexical_cast<std::string>(value).size();
+    for (auto value : data) {
+      std::string s = boost::lexical_cast<std::string>(value);
+      result += sum(s);
+    }
   }
   finalize(state, result);
 }
 BENCHMARK(lexical_cast);
 
 void boost_format(benchmark::State& state) {
-  size_t result = 0;
+  unsigned result = 0;
   boost::format fmt("%d");
   while (state.KeepRunning()) {
-    for (auto value : data) result += boost::str(fmt % value).size();
+    for (auto value : data) {
+      std::string s = boost::str(fmt % value);
+      result += sum(s);
+    }
   }
   finalize(state, result);
 }
 BENCHMARK(boost_format);
 
 void boost_karma_generate(benchmark::State& state) {
-  size_t result = 0;
+  unsigned result = 0;
   while (state.KeepRunning()) {
     for (auto value : data) {
       char buffer[12];
       char* ptr = buffer;
       boost::spirit::karma::generate(ptr, boost::spirit::karma::int_, value);
-      result += ptr - buffer;
+      unsigned size = ptr - buffer;
+      result += sum({buffer, size});
     }
   }
   finalize(state, result);
@@ -275,23 +306,27 @@ void boost_karma_generate(benchmark::State& state) {
 BENCHMARK(boost_karma_generate);
 
 void voigt_itostr(benchmark::State& state) {
-  size_t result = 0;
+  unsigned result = 0;
   while (state.KeepRunning()) {
-    for (auto value : data) result += itostr(value).size();
+    for (auto value : data) {
+      std::string s = itostr(value);
+      result += sum(s);
+    }
   }
   finalize(state, result);
 }
 BENCHMARK(voigt_itostr);
 
 void decimal_from(benchmark::State& state) {
-  size_t result = 0;
+  unsigned result = 0;
   while (state.KeepRunning()) {
     for (auto value : data) {
       char buffer[12];
-      result += cppx::decimal_from(value, buffer) - buffer;
+      auto end = cppx::decimal_from(value, buffer);
+      unsigned size = end - buffer;
+      result += sum({buffer, size});
     }
   }
-  benchmark::DoNotOptimize(result);
   finalize(state, result);
 }
 BENCHMARK(decimal_from);
@@ -301,8 +336,8 @@ void stout_ltoa(benchmark::State& state) {
   while (state.KeepRunning()) {
     for (auto value : data) {
       char buffer[12];
-      // ltoa doesn't give the size so we have to call strlen.
-      result += strlen(ltoa(value, buffer, 10));
+      ltoa(value, buffer, 10);
+      result += sum(buffer);  // ltoa doesn't give the size.
     }
   }
   finalize(state, result);
