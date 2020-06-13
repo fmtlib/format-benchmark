@@ -10,6 +10,7 @@
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/include/karma.hpp>
+#include <charconv>
 #include <cstdio>
 #include <cstdlib>
 #include <limits>
@@ -172,6 +173,19 @@ void to_string(benchmark::State& state) {
   finalize(state, result);
 }
 BENCHMARK(to_string);
+
+void to_chars(benchmark::State& state) {
+  size_t result = 0;
+  while (state.KeepRunning()) {
+    for (auto value : data) {
+      char buffer[12];
+      auto res = std::to_chars(buffer, buffer + sizeof(buffer), value);
+      result += res.ptr - buffer;
+    }
+  }
+  finalize(state, result);
+}
+BENCHMARK(to_chars);
 
 void format(benchmark::State& state) {
   size_t result = 0;
