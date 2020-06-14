@@ -89,7 +89,7 @@ char* ltoa(long N, char* str, int base) {
 // Computes a digest of data. It is used both to prevent compiler from
 // optimizing away the benchmarked code and to verify that the results are
 // correct. The overhead is less than 2.5% compared to just DoNotOptimize.
-inline unsigned compute_digest(fmt::string_view data) {
+FMT_INLINE unsigned compute_digest(fmt::string_view data) {
   unsigned digest = 0;
   for (char c : data) digest += c;
   return digest;
@@ -142,6 +142,24 @@ struct Data {
   }
 } data;
 
+struct digest_checker {
+  benchmark::State& state;
+  unsigned digest = 0;
+
+  explicit digest_checker(benchmark::State& s) : state(s) {}
+
+  ~digest_checker() noexcept(false) {
+    if (digest != static_cast<unsigned>(state.iterations()) * data.digest)
+      throw std::logic_error("invalid length");
+    state.SetItemsProcessed(state.iterations() * data.values.size());
+    benchmark::DoNotOptimize(digest);
+  }
+
+  FMT_INLINE void add(fmt::string_view s) {
+    digest += compute_digest(s);
+  }
+};
+
 void finalize(benchmark::State& state, unsigned result) {
   if (result != static_cast<unsigned>(state.iterations()) * data.digest)
     throw std::logic_error("invalid length");
@@ -150,213 +168,197 @@ void finalize(benchmark::State& state, unsigned result) {
 }
 
 void sprintf(benchmark::State& state) {
-  unsigned digest = 0;
+  auto dc = digest_checker(state);
   while (state.KeepRunning()) {
     for (auto value : data) {
       char buffer[12];
       unsigned size = std::sprintf(buffer, "%d", value);
-      digest += compute_digest({buffer, size});
+      dc.add({buffer, size});
     }
   }
-  finalize(state, digest);
 }
 BENCHMARK(sprintf);
 
 void ostringstream(benchmark::State& state) {
-  unsigned digest = 0;
+  auto dc = digest_checker(state);
   std::ostringstream os;
   while (state.KeepRunning()) {
     for (auto value : data) {
       os.str(std::string());
       os << value;
       std::string s = os.str();
-      digest += compute_digest(s);
+      dc.add(s);
     }
   }
-  finalize(state, digest);
 }
 BENCHMARK(ostringstream);
 
 void std_to_string(benchmark::State& state) {
-  unsigned digest = 0;
+  auto dc = digest_checker(state);
   while (state.KeepRunning()) {
     for (auto value : data) {
       std::string s = std::to_string(value);
-      digest += compute_digest(s);
+      dc.add(s);
     }
   }
-  finalize(state, digest);
 }
 BENCHMARK(std_to_string);
 
 void std_to_chars(benchmark::State& state) {
-  unsigned digest = 0;
+  auto dc = digest_checker(state);
   while (state.KeepRunning()) {
     for (auto value : data) {
       char buffer[12];
       auto res = std::to_chars(buffer, buffer + sizeof(buffer), value);
       unsigned size = res.ptr - buffer;
-      digest += compute_digest({buffer, size});
+      dc.add({buffer, size});
     }
   }
-  finalize(state, digest);
 }
 BENCHMARK(std_to_chars);
 
 void fmt_to_string(benchmark::State& state) {
-  unsigned digest = 0;
+  auto dc = digest_checker(state);
   while (state.KeepRunning()) {
     for (auto value : data) {
       std::string s = fmt::to_string(value);
-      digest += compute_digest(s);
+      dc.add(s);
     }
   }
-  finalize(state, digest);
 }
 BENCHMARK(fmt_to_string);
 
 void format_runtime(benchmark::State& state) {
-  unsigned digest = 0;
+  auto dc = digest_checker(state);
   while (state.KeepRunning()) {
     for (auto value : data) {
       std::string s = fmt::format("{}", value);
-      digest += compute_digest(s);
+      dc.add(s);
     }
   }
-  finalize(state, digest);
 }
 BENCHMARK(format_runtime);
 
 void format_compile(benchmark::State& state) {
-  unsigned digest = 0;
+  auto dc = digest_checker(state);
   while (state.KeepRunning()) {
     for (auto value : data) {
       std::string s = fmt::format(FMT_COMPILE("{}"), value);
-      digest += compute_digest(s);
+      dc.add(s);
     }
   }
-  finalize(state, digest);
 }
 BENCHMARK(format_compile);
 
 void format_to_runtime(benchmark::State& state) {
-  unsigned digest = 0;
+  auto dc = digest_checker(state);
   while (state.KeepRunning()) {
     for (auto value : data) {
       char buffer[12];
       auto end = fmt::format_to(buffer, "{}", value);
       unsigned size = end - buffer;
-      digest += compute_digest({buffer, size});
+      dc.add({buffer, size});
     }
   }
-  finalize(state, digest);
 }
 BENCHMARK(format_to_runtime);
 
 void format_to_compile(benchmark::State& state) {
-  unsigned digest = 0;
+  auto dc = digest_checker(state);
   while (state.KeepRunning()) {
     for (auto value : data) {
       char buffer[12];
       constexpr auto f = fmt::compile<int>(FMT_STRING("{}"));
       auto end = fmt::format_to(buffer, f, value);
       unsigned size = end - buffer;
-      digest += compute_digest({buffer, size});
+      dc.add({buffer, size});
     }
   }
-  finalize(state, digest);
 }
 BENCHMARK(format_to_compile);
 
 void format_int(benchmark::State& state) {
-  unsigned digest = 0;
+  auto dc = digest_checker(state);
   while (state.KeepRunning()) {
     for (auto value : data) {
       auto f = fmt::format_int(value);
-      digest += compute_digest({f.data(), f.size()});
+      dc.add({f.data(), f.size()});
     }
   }
-  finalize(state, digest);
 }
 BENCHMARK(format_int);
 
 void lexical_cast(benchmark::State& state) {
-  unsigned digest = 0;
+  auto dc = digest_checker(state);
   while (state.KeepRunning()) {
     for (auto value : data) {
       std::string s = boost::lexical_cast<std::string>(value);
-      digest += compute_digest(s);
+      dc.add(s);
     }
   }
-  finalize(state, digest);
 }
 BENCHMARK(lexical_cast);
 
 void boost_format(benchmark::State& state) {
-  unsigned digest = 0;
+  auto dc = digest_checker(state);
   boost::format fmt("%d");
   while (state.KeepRunning()) {
     for (auto value : data) {
       std::string s = boost::str(fmt % value);
-      digest += compute_digest(s);
+      dc.add(s);
     }
   }
-  finalize(state, digest);
 }
 BENCHMARK(boost_format);
 
 void boost_karma_generate(benchmark::State& state) {
-  unsigned digest = 0;
+  auto dc = digest_checker(state);
   while (state.KeepRunning()) {
     for (auto value : data) {
       char buffer[12];
       char* ptr = buffer;
       boost::spirit::karma::generate(ptr, boost::spirit::karma::int_, value);
       unsigned size = ptr - buffer;
-      digest += compute_digest({buffer, size});
+      dc.add({buffer, size});
     }
   }
-  finalize(state, digest);
 }
 BENCHMARK(boost_karma_generate);
 
 void voigt_itostr(benchmark::State& state) {
-  unsigned digest = 0;
+  auto dc = digest_checker(state);
   while (state.KeepRunning()) {
     for (auto value : data) {
       std::string s = itostr(value);
-      digest += compute_digest(s);
+      dc.add(s);
     }
   }
-  finalize(state, digest);
 }
 BENCHMARK(voigt_itostr);
 
 void decimal_from(benchmark::State& state) {
-  unsigned digest = 0;
+  auto dc = digest_checker(state);
   while (state.KeepRunning()) {
     for (auto value : data) {
       char buffer[12];
       auto end = cppx::decimal_from(value, buffer);
       unsigned size = end - buffer;
-      digest += compute_digest({buffer, size});
+      dc.add({buffer, size});
     }
   }
-  finalize(state, digest);
 }
 BENCHMARK(decimal_from);
 
 void stout_ltoa(benchmark::State& state) {
-  unsigned digest = 0;
+  auto dc = digest_checker(state);
   while (state.KeepRunning()) {
     for (auto value : data) {
       char buffer[12];
       ltoa(value, buffer, 10);
       // ltoa doesn't give the size so this invokes strlen.
-      digest += compute_digest(buffer);
+      dc.add(buffer);
     }
   }
-  finalize(state, digest);
 }
 BENCHMARK(stout_ltoa);
 
