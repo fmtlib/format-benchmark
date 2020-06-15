@@ -117,6 +117,35 @@ add_executable(int-benchmark src/int-benchmark.cc)
 target_link_libraries(int-benchmark benchmark Boost::boost fmt)
 target_compile_features(int-benchmark PRIVATE cxx_relaxed_constexpr)
 
+# Workaround a JCC bug in Intel CPUs:
+# https://www.intel.com/content/dam/support/us/en/documents/processors/mitigations-jump-conditional-code-erratum.pdf
+# to get more reliable benchmark results.
+set(INTEL FALSE)
+if (APPLE)
+  execute_process(COMMAND sysctl -n machdep.cpu.brand_string
+                  OUTPUT_VARIABLE out)
+  if (out MATCHES "Intel.*")
+    set(INTEL TRUE)
+  endif ()
+else ()
+  file(READ /proc/cpuinfo out)
+  if (out MATCHES "(.|\n)*GenuineIntel(.|\n)*")
+    set(INTEL TRUE)
+  endif ()
+endif ()
+if (INTEL)
+  # Ideally we should use -mbranches-within-32B-boundaries but it's not widely
+  # available so at least align loops to prevent unrelated code changes from
+  # affecting benchmark results.
+  if (GCC)
+    set(ALIGN_OPTIONS PRIVATE -falign-loops=32)
+  else ()
+    set(ALIGN_OPTIONS PRIVATE -mllvm -align-all-blocks=5)
+  endif ()
+endif ()
+message(STATUS "Align options: ${ALIGN_OPTIONS}")
+target_compile_options(int-benchmark PRIVATE ${ALIGN_OPTIONS})
+
 add_executable(locale-benchmark src/locale-benchmark.cc)
 target_link_libraries(locale-benchmark benchmark fmt)
 

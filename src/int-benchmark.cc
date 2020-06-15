@@ -142,13 +142,13 @@ struct Data {
   }
 } data;
 
-struct digest_checker {
+struct DigestChecker {
   benchmark::State& state;
   unsigned digest = 0;
 
-  explicit digest_checker(benchmark::State& s) : state(s) {}
+  explicit DigestChecker(benchmark::State& s) : state(s) {}
 
-  ~digest_checker() noexcept(false) {
+  ~DigestChecker() noexcept(false) {
     if (digest != static_cast<unsigned>(state.iterations()) * data.digest)
       throw std::logic_error("invalid length");
     state.SetItemsProcessed(state.iterations() * data.values.size());
@@ -160,15 +160,8 @@ struct digest_checker {
   }
 };
 
-void finalize(benchmark::State& state, unsigned result) {
-  if (result != static_cast<unsigned>(state.iterations()) * data.digest)
-    throw std::logic_error("invalid length");
-  state.SetItemsProcessed(state.iterations() * data.values.size());
-  benchmark::DoNotOptimize(result);
-}
-
 void sprintf(benchmark::State& state) {
-  auto dc = digest_checker(state);
+  auto dc = DigestChecker(state);
   while (state.KeepRunning()) {
     for (auto value : data) {
       char buffer[12];
@@ -180,7 +173,7 @@ void sprintf(benchmark::State& state) {
 BENCHMARK(sprintf);
 
 void ostringstream(benchmark::State& state) {
-  auto dc = digest_checker(state);
+  auto dc = DigestChecker(state);
   std::ostringstream os;
   while (state.KeepRunning()) {
     for (auto value : data) {
@@ -194,7 +187,7 @@ void ostringstream(benchmark::State& state) {
 BENCHMARK(ostringstream);
 
 void std_to_string(benchmark::State& state) {
-  auto dc = digest_checker(state);
+  auto dc = DigestChecker(state);
   while (state.KeepRunning()) {
     for (auto value : data) {
       std::string s = std::to_string(value);
@@ -205,7 +198,7 @@ void std_to_string(benchmark::State& state) {
 BENCHMARK(std_to_string);
 
 void std_to_chars(benchmark::State& state) {
-  auto dc = digest_checker(state);
+  auto dc = DigestChecker(state);
   while (state.KeepRunning()) {
     for (auto value : data) {
       char buffer[12];
@@ -218,7 +211,7 @@ void std_to_chars(benchmark::State& state) {
 BENCHMARK(std_to_chars);
 
 void fmt_to_string(benchmark::State& state) {
-  auto dc = digest_checker(state);
+  auto dc = DigestChecker(state);
   while (state.KeepRunning()) {
     for (auto value : data) {
       std::string s = fmt::to_string(value);
@@ -229,7 +222,7 @@ void fmt_to_string(benchmark::State& state) {
 BENCHMARK(fmt_to_string);
 
 void format_runtime(benchmark::State& state) {
-  auto dc = digest_checker(state);
+  auto dc = DigestChecker(state);
   while (state.KeepRunning()) {
     for (auto value : data) {
       std::string s = fmt::format("{}", value);
@@ -240,7 +233,7 @@ void format_runtime(benchmark::State& state) {
 BENCHMARK(format_runtime);
 
 void format_compile(benchmark::State& state) {
-  auto dc = digest_checker(state);
+  auto dc = DigestChecker(state);
   while (state.KeepRunning()) {
     for (auto value : data) {
       std::string s = fmt::format(FMT_COMPILE("{}"), value);
@@ -251,7 +244,7 @@ void format_compile(benchmark::State& state) {
 BENCHMARK(format_compile);
 
 void format_to_runtime(benchmark::State& state) {
-  auto dc = digest_checker(state);
+  auto dc = DigestChecker(state);
   while (state.KeepRunning()) {
     for (auto value : data) {
       char buffer[12];
@@ -264,7 +257,7 @@ void format_to_runtime(benchmark::State& state) {
 BENCHMARK(format_to_runtime);
 
 void format_to_compile(benchmark::State& state) {
-  auto dc = digest_checker(state);
+  auto dc = DigestChecker(state);
   while (state.KeepRunning()) {
     for (auto value : data) {
       char buffer[12];
@@ -278,7 +271,7 @@ void format_to_compile(benchmark::State& state) {
 BENCHMARK(format_to_compile);
 
 void format_int(benchmark::State& state) {
-  auto dc = digest_checker(state);
+  auto dc = DigestChecker(state);
   while (state.KeepRunning()) {
     for (auto value : data) {
       auto f = fmt::format_int(value);
@@ -289,7 +282,7 @@ void format_int(benchmark::State& state) {
 BENCHMARK(format_int);
 
 void lexical_cast(benchmark::State& state) {
-  auto dc = digest_checker(state);
+  auto dc = DigestChecker(state);
   while (state.KeepRunning()) {
     for (auto value : data) {
       std::string s = boost::lexical_cast<std::string>(value);
@@ -300,7 +293,7 @@ void lexical_cast(benchmark::State& state) {
 BENCHMARK(lexical_cast);
 
 void boost_format(benchmark::State& state) {
-  auto dc = digest_checker(state);
+  auto dc = DigestChecker(state);
   boost::format fmt("%d");
   while (state.KeepRunning()) {
     for (auto value : data) {
@@ -312,7 +305,7 @@ void boost_format(benchmark::State& state) {
 BENCHMARK(boost_format);
 
 void boost_karma_generate(benchmark::State& state) {
-  auto dc = digest_checker(state);
+  auto dc = DigestChecker(state);
   while (state.KeepRunning()) {
     for (auto value : data) {
       char buffer[12];
@@ -326,7 +319,7 @@ void boost_karma_generate(benchmark::State& state) {
 BENCHMARK(boost_karma_generate);
 
 void voigt_itostr(benchmark::State& state) {
-  auto dc = digest_checker(state);
+  auto dc = DigestChecker(state);
   while (state.KeepRunning()) {
     for (auto value : data) {
       std::string s = itostr(value);
@@ -337,7 +330,7 @@ void voigt_itostr(benchmark::State& state) {
 BENCHMARK(voigt_itostr);
 
 void decimal_from(benchmark::State& state) {
-  auto dc = digest_checker(state);
+  auto dc = DigestChecker(state);
   while (state.KeepRunning()) {
     for (auto value : data) {
       char buffer[12];
@@ -350,7 +343,7 @@ void decimal_from(benchmark::State& state) {
 BENCHMARK(decimal_from);
 
 void stout_ltoa(benchmark::State& state) {
-  auto dc = digest_checker(state);
+  auto dc = DigestChecker(state);
   while (state.KeepRunning()) {
     for (auto value : data) {
       char buffer[12];
