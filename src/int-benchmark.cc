@@ -172,7 +172,7 @@ void sprintf(benchmark::State& state) {
 }
 BENCHMARK(sprintf);
 
-void ostringstream(benchmark::State& state) {
+void std_ostringstream(benchmark::State& state) {
   auto dc = DigestChecker(state);
   std::ostringstream os;
   for (auto s : state) {
@@ -184,7 +184,7 @@ void ostringstream(benchmark::State& state) {
     }
   }
 }
-BENCHMARK(ostringstream);
+BENCHMARK(std_ostringstream);
 
 void std_to_string(benchmark::State& state) {
   auto dc = DigestChecker(state);
@@ -221,7 +221,7 @@ void fmt_to_string(benchmark::State& state) {
 }
 BENCHMARK(fmt_to_string);
 
-void format_runtime(benchmark::State& state) {
+void fmt_format_runtime(benchmark::State& state) {
   auto dc = DigestChecker(state);
   for (auto s : state) {
     for (auto value : data) {
@@ -230,9 +230,9 @@ void format_runtime(benchmark::State& state) {
     }
   }
 }
-BENCHMARK(format_runtime);
+BENCHMARK(fmt_format_runtime);
 
-void format_compile(benchmark::State& state) {
+void fmt_format_compile(benchmark::State& state) {
   auto dc = DigestChecker(state);
   for (auto s : state) {
     for (auto value : data) {
@@ -241,9 +241,9 @@ void format_compile(benchmark::State& state) {
     }
   }
 }
-BENCHMARK(format_compile);
+BENCHMARK(fmt_format_compile);
 
-void format_to_runtime(benchmark::State& state) {
+void fmt_format_to_runtime(benchmark::State& state) {
   auto dc = DigestChecker(state);
   for (auto s : state) {
     for (auto value : data) {
@@ -254,9 +254,9 @@ void format_to_runtime(benchmark::State& state) {
     }
   }
 }
-BENCHMARK(format_to_runtime);
+BENCHMARK(fmt_format_to_runtime);
 
-void format_to_compile(benchmark::State& state) {
+void fmt_format_to_compile(benchmark::State& state) {
   auto dc = DigestChecker(state);
   for (auto s : state) {
     for (auto value : data) {
@@ -268,9 +268,9 @@ void format_to_compile(benchmark::State& state) {
     }
   }
 }
-BENCHMARK(format_to_compile);
+BENCHMARK(fmt_format_to_compile);
 
-void format_int(benchmark::State& state) {
+void fmt_format_int(benchmark::State& state) {
   auto dc = DigestChecker(state);
   for (auto s : state) {
     for (auto value : data) {
@@ -279,9 +279,9 @@ void format_int(benchmark::State& state) {
     }
   }
 }
-BENCHMARK(format_int);
+BENCHMARK(fmt_format_int);
 
-void lexical_cast(benchmark::State& state) {
+void boost_lexical_cast(benchmark::State& state) {
   auto dc = DigestChecker(state);
   for (auto s : state) {
     for (auto value : data) {
@@ -290,7 +290,7 @@ void lexical_cast(benchmark::State& state) {
     }
   }
 }
-BENCHMARK(lexical_cast);
+BENCHMARK(boost_lexical_cast);
 
 void boost_format(benchmark::State& state) {
   auto dc = DigestChecker(state);
