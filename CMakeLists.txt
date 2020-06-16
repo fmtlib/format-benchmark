@@ -137,10 +137,10 @@ if (INTEL)
   # Ideally we should use -mbranches-within-32B-boundaries but it's not widely
   # available so at least align loops to prevent unrelated code changes from
   # affecting benchmark results.
-  if (GCC)
-    set(ALIGN_OPTIONS PRIVATE -falign-loops=32)
-  else ()
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     set(ALIGN_OPTIONS PRIVATE -mllvm -align-all-blocks=5)
+  else ()
+    set(ALIGN_OPTIONS PRIVATE -falign-loops=32)
   endif ()
 endif ()
 message(STATUS "Align options: ${ALIGN_OPTIONS}")
