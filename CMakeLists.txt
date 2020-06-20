@@ -137,9 +137,6 @@ add_subdirectory(digits10)
 add_executable(vararg-benchmark vararg-benchmark.cc)
 target_link_libraries(vararg-benchmark benchmark fmt)
 
-add_executable(double-benchmark src/double-benchmark.cc src/dtoa_milo.h)
-target_link_libraries(double-benchmark benchmark fmt)
-
 add_executable(int-benchmark src/int-benchmark.cc)
 target_link_libraries(int-benchmark benchmark Boost::boost fmt)
 target_compile_features(int-benchmark PRIVATE cxx_relaxed_constexpr)
