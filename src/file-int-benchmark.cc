@@ -259,7 +259,7 @@ struct Data {
     for (int i = 1; i < 11; ++i) fmt::print("{:2} {:6}\n", i, counts[i]);
   }
 
-  Data() : values(1'000'000) {
+  Data() : values(100000) {
     // Similar data as in Boost Karma int generator test:
     // https://www.boost.org/doc/libs/1_63_0/libs/spirit/workbench/karma/int_generator.cpp
     // with rand replaced by uniform_int_distribution for consistent results
