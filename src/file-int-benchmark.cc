@@ -440,6 +440,8 @@ void voigt_itostr(benchmark::State& state) {
 }
 BENCHMARK(voigt_itostr);
 
+
+//THIS IS NOT THE CORRECT WAY FOR USING jiaendu
 void u2985907(benchmark::State& state) {
   fast_io::obuf_file obf("u2985907_itoa10.txt");
   for (auto s : state) {
@@ -452,6 +454,52 @@ void u2985907(benchmark::State& state) {
   }
 }
 BENCHMARK(u2985907);
+
+void u2985907_correct(benchmark::State& state) {
+  fast_io::obuf_file obf("u2985907_itoa10_correct.txt");
+  for (auto s : state) {
+    for (auto value : data) {
+      auto ptr=oreserve(obf,13);
+      if(ptr)[[likely]]
+      {
+        unsigned size = u2985907_itoa10(value, buffer);
+        ptr[size]=u8'\n';
+        orelease(obf,ptr+(++size));
+      }
+      else
+      {
+        char buffer[13];
+        unsigned size = u2985907_itoa10(value, buffer);
+        buffer[size]=u8'\n';
+        write(obf,buffer,buffer+(++size));
+      }
+    }
+  }
+}
+BENCHMARK(u2985907_correct);
+
+void std_to_chars_fast(benchmark::State& state) {
+  fast_io::obuf_file obf("std_to_chars_fast.txt");
+  for (auto s : state) {
+    for (auto value : data) {
+      auto ptr=oreserve(obf,13);
+      if(ptr)[[likely]]
+      {
+        unsigned size = std::to_chars(ptr,ptr+13,value);
+        ptr[size]=u8'\n';
+        orelease(obf,ptr+(++size));
+      }
+      else
+      {
+        char buffer[13];
+        unsigned size = std::to_chars(ptr,ptr+13,value);
+        buffer[size]=u8'\n';
+        write(obf,buffer,buffer+(++size));
+      }
+    }
+  }
+}
+BENCHMARK(std_to_chars_fast);
 
 void decimal_from(benchmark::State& state) {
   fast_io::obuf_file obf("decimal_from.txt");
@@ -498,6 +546,18 @@ void fast_io_concatln(benchmark::State& state) {
   }
 }
 BENCHMARK(fast_io_concatln);
+
+void fast_io_print_reserve(benchmark::State& state) {
+  fast_io::obuf_file obf("fast_io_print_reserve.txt");
+  for (auto s : state) {
+    for (auto value : data) {
+      auto rsv(fast_io::print_reserve(value));
+      print(obf,rsv.data(),rsv.data()+rsv.size());
+      put(obf,u8'\n');
+    }
+  }
+}
+BENCHMARK(fast_io_print_reserve);
 
 void fast_io_println(benchmark::State& state) {
   fast_io::obuf_file obf("fast_io_println.txt");
