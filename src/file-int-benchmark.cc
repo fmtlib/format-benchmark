@@ -485,7 +485,7 @@ void std_to_chars_fast(benchmark::State& state) {
       auto ptr=oreserve(obf,13);
       if(ptr)[[likely]]
       {
-        auto res = std::to_chars(buffer, buffer + 13, value);
+        auto res = std::to_chars(ptr, ptr + 13, value);
         *res.ptr=u8'\n';
         orelease(obf,res.ptr+1);
       }
