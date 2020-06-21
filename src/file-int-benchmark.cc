@@ -485,16 +485,16 @@ void std_to_chars_fast(benchmark::State& state) {
       auto ptr=oreserve(obf,13);
       if(ptr)[[likely]]
       {
-        unsigned size = std::to_chars(ptr,ptr+13,value);
-        ptr[size]=u8'\n';
-        orelease(obf,ptr+(++size));
+        auto res = std::to_chars(buffer, buffer + 13, value);
+        *res.ptr=u8'\n';
+        orelease(obf,res.ptr+1);
       }
       else
       {
         char buffer[13];
-        unsigned size = std::to_chars(ptr,ptr+13,value);
-        buffer[size]=u8'\n';
-        write(obf,buffer,buffer+(++size));
+        auto res = std::to_chars(buffer, buffer + sizeof(buffer), value);
+        *res.ptr=u8'\n';
+        write(obf,buffer,res.ptr+1);
       }
     }
   }
