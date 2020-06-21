@@ -21,6 +21,7 @@
 #include <vector>
 
 #if __cpp_lib_concepts>=201907L
+#define FAST_IO_FMT_BENCHMARK
 #include "../fast_io/include/fast_io.h"
 #endif
 
@@ -512,20 +513,17 @@ void fast_io_concat(benchmark::State& state) {
   }
 }
 BENCHMARK(fast_io_concat);
-void fast_io_ospan(benchmark::State& state) {
-  std::array<char,40> buffer;
-
+void fast_io_print_reserve(benchmark::State& state) {
 //  fast_io::ostring_ref ostr(str);
   auto dc = DigestChecker(state);
   for (auto s : state) {
     for (auto value : data) {
-      fast_io::ospan osp(buffer);
-      print(osp,value);
-      dc.add({osp.span().data(),osize(osp)});
+      auto rsv(fast_io::print_reserve(data));
+      dc.add({rsv.data(),rsv.size()});
     }
   }
 }
-BENCHMARK(fast_io_ospan);
+BENCHMARK(fast_io_print_reserve);
 #endif
 
 BENCHMARK_MAIN();
