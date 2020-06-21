@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.1)
 
 # Set the default CMAKE_BUILD_TYPE to Release.
 # This should be done before the project command since the latter can set
@@ -10,14 +10,15 @@ endif ()
 
 project(FORMAT_BENCHMARKS)
 
-set(CMAKE_MACOSX_RPATH ON)
-set(CMAKE_CXX_STANDARD 17)
+
+set(CMAKE_CXX_STANDARD 20)
 
 # Workaround a JCC bug in Intel CPUs:
 # https://www.intel.com/content/dam/support/us/en/documents/processors/mitigations-jump-conditional-code-erratum.pdf
 # to get more reliable benchmark results.
 set(INTEL FALSE)
 if (APPLE)
+  set(CMAKE_MACOSX_RPATH ON)
   execute_process(COMMAND sysctl -n machdep.cpu.brand_string
                   OUTPUT_VARIABLE out)
   if (out MATCHES "Intel.*")

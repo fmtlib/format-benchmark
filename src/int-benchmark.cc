@@ -20,6 +20,10 @@
 #include <string>
 #include <vector>
 
+#ifdef __cpp_lib_concepts>=201907L
+#include "../fast_io/include/fast_io.h"
+#endif
+
 #include "itostr.cc"
 
 // The method by StackOverflow user
@@ -497,5 +501,31 @@ void stout_ltoa(benchmark::State& state) {
   }
 }
 BENCHMARK(stout_ltoa);
+
+#ifdef __cpp_lib_concepts>=201907L
+void fast_io_concat(benchmark::State& state) {
+  auto dc = DigestChecker(state);
+  for (auto s : state) {
+    for (auto value : data) {
+      dc.add(fast_io::concat(value));
+    }
+  }
+}
+BENCHMARK(fast_io_concat);
+
+void fast_io_ostring_ref(benchmark::State& state) {
+  std::string str;
+  fast_io::ostring_ref ostr(str);
+  auto dc = DigestChecker(state);
+  for (auto s : state) {
+    for (auto value : data) {
+      obuffer_set_curr(ostr,obuffer_begin(ostr));
+      print(ostr,value);
+      dc.add(str);
+    }
+  }
+}
+BENCHMARK(fast_io_ostring_ref);
+#endif
 
 BENCHMARK_MAIN();

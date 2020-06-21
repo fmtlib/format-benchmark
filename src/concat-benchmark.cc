@@ -89,6 +89,25 @@ void format_to(benchmark::State& state) {
   }
 }
 BENCHMARK(format_to);
+#ifdef __cpp_lib_concepts>=201907L
+void fast_io_print(benchmark::State& state) {
+  benchmark::ClobberMemory();
+  for (auto _ : state) {
+    fast_io::internal_temporary_buffer<char> output;
+    print(output, "Result: ",str1,": (",str2,",",str3,",",str4,","str5,")");
+    benchmark::DoNotOptimize(output.data());
+  }
+}
+BENCHMARK(fast_io_print);
+void fast_io_concat(benchmark::State& state) {
+  benchmark::ClobberMemory();
+  for (auto _ : state) {
+    benchmark::DoNotOptimize(fast_io::concat("Result: ",str1,": (",str2,",",str3,",",str4,","str5,")").data());
+  }
+}
+BENCHMARK(fast_io_concat);
+
+#endif
 
 void nullop(benchmark::State& state) {
   for (auto _ : state) {
