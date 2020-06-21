@@ -119,3 +119,53 @@ format_to               84.3 ns         84.3 ns      8146667
 fast_io_print           23.3 ns         23.3 ns     30091614
 fast_io_concat          66.4 ns         66.4 ns     10546989
 nullop                 0.252 ns        0.252 ns   1000000000
+
+
+It looks fmt's benchmark deliberately ruins cache locality of jiaendu algorithm
+
+
+cqwrteur@DESKTOP-C4VAUFM:~/format-benchmark/build$ ./int-benchmark-in-order
+The number of values by digit count:
+ 1     10
+ 2     90
+ 3    900
+ 4   9000
+ 5  90000
+ 6 900000
+ 7      0
+ 8      0
+ 9      0
+10      0
+2020-06-21T10:08:22-04:00
+Running ./int-benchmark-in-order
+Run on (12 X 3593.26 MHz CPU s)
+CPU Caches:
+  L1 Data 32 KiB (x6)
+  L1 Instruction 32 KiB (x6)
+  L2 Unified 512 KiB (x6)
+  L3 Unified 16384 KiB (x1)
+Load Average: 0.42, 0.28, 0.55
+--------------------------------------------------------------------------------
+Benchmark                      Time             CPU   Iterations UserCounters...
+--------------------------------------------------------------------------------
+sprintf                 62320291 ns     62320479 ns           11 items_per_second=16.0461M/s
+std_ostringstream       54647454 ns     54646801 ns           13 items_per_second=18.2993M/s
+std_to_string            9350224 ns      9350126 ns           75 items_per_second=106.95M/s
+std_to_chars             7519653 ns      7519667 ns           93 items_per_second=132.985M/s
+fmt_to_string           11011169 ns     11011201 ns           62 items_per_second=90.8166M/s
+fmt_format_runtime      22369400 ns     22369443 ns           31 items_per_second=44.7038M/s
+fmt_format_compile      11017577 ns     11017598 ns           64 items_per_second=90.7639M/s
+fmt_format_to_runtime   17233278 ns     17233323 ns           40 items_per_second=58.0271M/s
+fmt_format_to_compile    7646626 ns      7646645 ns           92 items_per_second=130.776M/s
+fmt_format_int           5806645 ns      5806657 ns          121 items_per_second=172.216M/s
+boost_lexical_cast      24628418 ns     24628471 ns           28 items_per_second=40.6034M/s
+boost_format           226440000 ns    226440589 ns            3 items_per_second=4.41617M/s
+boost_karma_generate     9217050 ns      9217077 ns           76 items_per_second=108.494M/s
+voigt_itostr            10767260 ns     10767286 ns           65 items_per_second=92.8739M/s
+u2985907                 4781043 ns      4781053 ns          147 items_per_second=209.159M/s
+decimal_from            10713470 ns     10713493 ns           66 items_per_second=93.3402M/s
+stout_ltoa              26098837 ns     26098883 ns           27 items_per_second=38.3158M/s
+fast_io_concat          10248196 ns     10248215 ns           68 items_per_second=97.578M/s
+fast_io_print_reserve    5300714 ns      5300725 ns          133 items_per_second=188.653M/s
+
+

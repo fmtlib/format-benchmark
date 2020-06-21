@@ -164,6 +164,6 @@ target_link_libraries(int-benchmark-in-order benchmark Boost::boost fmt)
 target_compile_features(int-benchmark-in-order PRIVATE cxx_relaxed_constexpr)
 
 
-add_executable(file-int-benchmark-in-order src/int-benchmark-in-order.cc)
+add_executable(file-int-benchmark-in-order src/file-int-benchmark-in-order.cc)
 target_link_libraries(file-int-benchmark-in-order benchmark Boost::boost fmt)
 target_compile_features(file-int-benchmark-in-order PRIVATE cxx_relaxed_constexpr)
