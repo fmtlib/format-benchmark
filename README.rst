@@ -48,7 +48,9 @@ Sample results on macOS with clang and libc++:
 
 
 
-Other benchmarks running on provided by fast_io author. On Linux with libstdc++, GCC-11 C++20
+Other benchmarks running on provided by fast_io author. On Linux with libstdc++, GCC-11 C++20. Running on clang + apple is bad.
+
+BTW, I will also provide a file benchmark to let you guys see why format_int makes no sense in real world.
 
 cqwrteur@DESKTOP-C4VAUFM:~/format-benchmark/build$ ./int-benchmark
 The number of values by digit count:
@@ -121,7 +123,7 @@ fast_io_concat          66.4 ns         66.4 ns     10546989
 nullop                 0.252 ns        0.252 ns   1000000000
 
 
-It looks fmt's benchmark deliberately ruins cache locality of jiaendu algorithm
+It looks fmt's benchmark's data set deliberately ruins cache locality of jiaendu algorithm to promote his fmt lib. See this int benchmark in order. You can see jiaendu runs very well.
 
 
 cqwrteur@DESKTOP-C4VAUFM:~/format-benchmark/build$ ./int-benchmark-in-order
@@ -168,4 +170,77 @@ stout_ltoa              26098837 ns     26098883 ns           27 items_per_secon
 fast_io_concat          10248196 ns     10248215 ns           68 items_per_second=97.578M/s
 fast_io_print_reserve    5300714 ns      5300725 ns          133 items_per_second=188.653M/s
 
+
+
+cqwrteur@DESKTOP-C4VAUFM:~/format-benchmark/build/fileb$ ../file-int-benchmark-in-order
+The number of values by digit count:
+ 1     10
+ 2     90
+ 3    900
+ 4   9000
+ 5  90000
+ 6 900000
+ 7      0
+ 8      0
+ 9      0
+10      0
+2020-06-21T10:14:33-04:00
+Running ../file-int-benchmark-in-order
+Run on (12 X 3593.26 MHz CPU s)
+CPU Caches:
+  L1 Data 32 KiB (x6)
+  L1 Instruction 32 KiB (x6)
+  L2 Unified 512 KiB (x6)
+  L3 Unified 16384 KiB (x1)
+Load Average: 0.18, 0.17, 0.40
+----------------------------------------------------------------
+Benchmark                      Time             CPU   Iterations
+----------------------------------------------------------------
+fprintf                 57592333 ns     57592426 ns           12
+std_ofstream            55919308 ns     55919377 ns           12
+fmt_print               42610800 ns     42610357 ns           17
+std_to_chars            11397534 ns     11397338 ns           62
+fmt_to_string           16661595 ns     16661393 ns           42
+fmt_format_runtime      35192181 ns     35191612 ns           21
+fmt_format_compile      19402943 ns     19402683 ns           35
+fmt_format_to_runtime   26155774 ns     26139605 ns           27
+fmt_format_to_compile   11257168 ns     11256815 ns           59
+fmt_format_int          11861714 ns     11861545 ns           59
+boost_lexical_cast      29049683 ns     29049091 ns           23
+boost_format           241224867 ns    241225457 ns            3
+boost_karma_generate    16753700 ns     16753511 ns           42
+voigt_itostr            18430816 ns     18430585 ns           37
+u2985907                10755685 ns     10755565 ns           66
+u2985907_correct         7280822 ns      7280711 ns           93
+std_to_chars_fast        8932342 ns      8932051 ns           80
+decimal_from            14453468 ns     14453466 ns           47
+stout_ltoa              30093805 ns     30093804 ns           22
+fast_io_concat          14463548 ns     14463376 ns           48
+fast_io_concatln        13483156 ns     13473767 ns           52
+fast_io_print_reserve   12277633 ns     12277631 ns           57
+fast_io_println          6885923 ns      6885925 ns          106
+
+
+cqwrteur@DESKTOP-C4VAUFM:~/format-benchmark/build$ ./concat-benchmark
+2020-06-21T10:17:13-04:00
+Running ./concat-benchmark
+Run on (12 X 3593.26 MHz CPU s)
+CPU Caches:
+  L1 Data 32 KiB (x6)
+  L1 Instruction 32 KiB (x6)
+  L2 Unified 512 KiB (x6)
+  L3 Unified 16384 KiB (x1)
+Load Average: 0.14, 0.24, 0.40
+------------------------------------------------------------
+Benchmark                  Time             CPU   Iterations
+------------------------------------------------------------
+naive                   87.9 ns         87.9 ns      7922377
+append                  61.5 ns         61.5 ns     11420470
+appendWithReserve       42.1 ns         42.1 ns     16927493
+format_compile          74.2 ns         74.2 ns      9445351
+format_runtime           113 ns          113 ns      6153164
+format_to               85.5 ns         85.5 ns      8221508
+fast_io_print           22.6 ns         22.6 ns     30832719
+fast_io_concat          65.8 ns         65.8 ns     10479647
+nullop                 0.254 ns        0.254 ns   1000000000
 
