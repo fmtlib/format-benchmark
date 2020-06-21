@@ -259,7 +259,7 @@ struct Data {
     for (int i = 1; i < 11; ++i) fmt::print("{:2} {:6}\n", i, counts[i]);
   }
 
-  Data() : values(100000) {
+  Data() : values(1'000'000) {
     // Similar data as in Boost Karma int generator test:
     // https://www.boost.org/doc/libs/1_63_0/libs/spirit/workbench/karma/int_generator.cpp
     // with rand replaced by uniform_int_distribution for consistent results
@@ -446,7 +446,8 @@ void u2985907(benchmark::State& state) {
     for (auto value : data) {
       char buffer[13];
       unsigned size = u2985907_itoa10(value, buffer);
-      println(obf,buffer,buffer+size);
+      buffer[size]=u8'\n';
+      write(obf,buffer,buffer+(++size));
     }
   }
 }
