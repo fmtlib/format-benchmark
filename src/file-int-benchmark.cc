@@ -19,6 +19,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <fstream>
 
 #if __cpp_lib_concepts>=201907L
 #include "../fast_io/include/fast_io.h"
@@ -445,7 +446,7 @@ void u2985907(benchmark::State& state) {
     for (auto value : data) {
       char buffer[13];
       unsigned size = u2985907_itoa10(value, buffer);
-      println(obf,buffer,buffer+size)
+      println(obf,buffer,buffer+size);
     }
   }
 }
@@ -478,14 +479,14 @@ void stout_ltoa(benchmark::State& state) {
 BENCHMARK(stout_ltoa);
 
 void fast_io_concat(benchmark::State& state) {
-  fast_io::obuf_file obf("fast_io_concatln.txt");
+  fast_io::obuf_file obf("fast_io_concat.txt");
   for (auto s : state) {
     for (auto value : data) {
       println(obf,fast_io::concat(value));
     }
   }
 }
-BENCHMARK(fast_io_concatln);
+BENCHMARK(fast_io_concat);
 
 void fast_io_concatln(benchmark::State& state) {
   fast_io::obuf_file obf("fast_io_concatln.txt");
