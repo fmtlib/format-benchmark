@@ -469,9 +469,9 @@ void stout_ltoa(benchmark::State& state) {
   fast_io::obuf_file obf("stout_ltoa.txt");
   for (auto s : state) {
     for (auto value : data) {
-      char buffer[13];
-      ltoa(value, buffer, 13);
-      print(obf,fast_io::chvw(buffer));
+      char buffer[12];
+      ltoa(value, buffer, 12);
+      println(obf,fast_io::chvw(buffer));
       // ltoa doesn't give the size so this invokes strlen.
     }
   }
