@@ -281,14 +281,14 @@ struct Data {
 } data;
 
 void fprintf(benchmark::State& state) {
-  std::unique_ptr<FILE,decltype(fclose)*> fp(std::fopen("fprintf.txt","wb"));
+  std::unique_ptr<FILE,decltype(std::fclose)*> fp(std::fopen("fprintf.txt","wb"),std::fclose);
   for (auto s : state) {
     for (auto value : data) {
       std::fprintf(fp.get(), "%d\n", value);
     }
   }
 }
-BENCHMARK(sprintf);
+BENCHMARK(fprintf);
 
 void std_ofstream(benchmark::State& state) {
   std::ofstream os("ofstream.txt",std::ofstream::binary);
