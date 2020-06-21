@@ -512,7 +512,7 @@ void fast_io_println(benchmark::State& state) {
   fast_io::obuf_file obf("fast_io_println.txt");
   for (auto s : state) {
     for (auto value : data) {
-      println(obf,rsv);
+      println(obf,value);
     }
   }
 }
