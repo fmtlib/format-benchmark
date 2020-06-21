@@ -157,3 +157,13 @@ target_link_libraries(find-pow10-benchmark benchmark)
 add_executable(file-int-benchmark src/file-int-benchmark.cc)
 target_link_libraries(file-int-benchmark benchmark Boost::boost fmt)
 target_compile_features(file-int-benchmark PRIVATE cxx_relaxed_constexpr)
+
+
+add_executable(int-benchmark-in-order src/int-benchmark-in-order.cc)
+target_link_libraries(int-benchmark-in-order benchmark Boost::boost fmt)
+target_compile_features(int-benchmark-in-order PRIVATE cxx_relaxed_constexpr)
+
+
+add_executable(file-int-benchmark-in-order src/int-benchmark-in-order.cc)
+target_link_libraries(file-int-benchmark-in-order benchmark Boost::boost fmt)
+target_compile_features(file-int-benchmark-in-order PRIVATE cxx_relaxed_constexpr)
