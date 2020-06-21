@@ -497,16 +497,6 @@ void fast_io_concatln(benchmark::State& state) {
   }
 }
 BENCHMARK(fast_io_concatln);
-void fast_io_print_reserve(benchmark::State& state) {
-  fast_io::obuf_file obf("fast_io_print_reserve.txt");
-  for (auto s : state) {
-    for (auto value : data) {
-      auto rsv(fast_io::print_reserve(value));
-      println(obf,rsv);
-    }
-  }
-}
-BENCHMARK(fast_io_print_reserve);
 
 void fast_io_println(benchmark::State& state) {
   fast_io::obuf_file obf("fast_io_println.txt");
