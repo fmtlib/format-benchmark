@@ -513,7 +513,6 @@ void fast_io_concat(benchmark::State& state) {
 }
 BENCHMARK(fast_io_concat);
 void fast_io_ospan(benchmark::State& state) {
-  std::string str;
   std::array<char,40> buffer;
 
 //  fast_io::ostring_ref ostr(str);
@@ -525,7 +524,7 @@ void fast_io_ospan(benchmark::State& state) {
     }
   }
 }
-BENCHMARK(fast_io_ostring_ref);
+BENCHMARK(fast_io_ospan);
 #endif
 
 BENCHMARK_MAIN();
