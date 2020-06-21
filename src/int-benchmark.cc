@@ -518,7 +518,7 @@ void fast_io_print_reserve(benchmark::State& state) {
   auto dc = DigestChecker(state);
   for (auto s : state) {
     for (auto value : data) {
-      auto rsv(fast_io::print_reserve(data));
+      auto rsv(fast_io::print_reserve(value));
       dc.add({rsv.data(),rsv.size()});
     }
   }
