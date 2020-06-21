@@ -1,6 +1,10 @@
 #include <benchmark/benchmark.h>
 #include <fmt/compile.h>
 
+#ifdef __cpp_lib_concepts>=201907L
+#include "../fast_io/include/fast_io.h"
+#endif
+
 #include <string>
 
 std::string str1 = "label";
