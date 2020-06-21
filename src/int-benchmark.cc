@@ -521,7 +521,7 @@ void fast_io_ospan(benchmark::State& state) {
     for (auto value : data) {
       fast_io::ospan osp(buffer);
       print(osp,value);
-      dc.add({osp.data(),osp.size()});
+      dc.add({osp.span().data(),osp.span().size()});
     }
   }
 }
