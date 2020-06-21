@@ -48,7 +48,7 @@ Sample results on macOS with clang and libc++:
 
 
 
-Other benchmarks running on provided by fast_io author. On Linux with libstdc++, GCC-11 C++20. Running on clang + apple is bad.
+Other benchmarks running on provided by fast_io author. On Linux with libstdc++, GCC-11 C++20. Running on clang + apple is bad since libc++ is extremely slow compared to libstdc++. Apple is also not mainstream platform. Think of how apple exploits workers in 3rd world.
 
 BTW, I will also provide a file benchmark to let you guys see why format_int makes no sense in real world.
 
