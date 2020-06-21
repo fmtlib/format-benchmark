@@ -302,10 +302,10 @@ void std_ofstream(benchmark::State& state) {
 BENCHMARK(std_ofstream);
 
 void fmt_print(benchmark::State& state) {
-  std::ofstream os("fmt_print.txt",std::ofstream::binary);
+  std::unique_ptr<FILE,decltype(std::fclose)*> fp(std::fopen("fmt_print.txt","wb"),std::fclose);
   for (auto s : state) {
     for (auto value : data) {
-      fmt::print(os,"{}\n", value);
+      fmt::print(fp.get(),"{}\n", value);
     }
   }
 }
