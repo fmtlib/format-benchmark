@@ -519,8 +519,9 @@ void fast_io_ospan(benchmark::State& state) {
   auto dc = DigestChecker(state);
   for (auto s : state) {
     for (auto value : data) {
-      fast_io::ospan<char> osp(buffer);
+      fast_io::ospan osp(buffer);
       print(osp,value);
+      dc.add({osp.data(),osp.size()});
     }
   }
 }
