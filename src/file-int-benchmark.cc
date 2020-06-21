@@ -462,7 +462,7 @@ void u2985907_correct(benchmark::State& state) {
       auto ptr=oreserve(obf,13);
       if(ptr)[[likely]]
       {
-        unsigned size = u2985907_itoa10(value, buffer);
+        unsigned size = u2985907_itoa10(value, ptr);
         ptr[size]=u8'\n';
         orelease(obf,ptr+(++size));
       }
