@@ -346,30 +346,6 @@ void std_to_chars(benchmark::State& state) {
 }
 BENCHMARK(std_to_chars);
 
-
-#if __cpp_lib_concepts>=201907L
-void fast_io_concat(benchmark::State& state) {
-  auto dc = DigestChecker(state);
-  for (auto s : state) {
-    for (auto value : data) {
-      dc.add(fast_io::concat(value));
-    }
-  }
-}
-BENCHMARK(fast_io_concat);
-void fast_io_print_reserve(benchmark::State& state) {
-//  fast_io::ostring_ref ostr(str);
-  auto dc = DigestChecker(state);
-  for (auto s : state) {
-    for (auto value : data) {
-      auto rsv(fast_io::print_reserve(value));
-      dc.add({rsv.data(),rsv.size()});
-    }
-  }
-}
-BENCHMARK(fast_io_print_reserve);
-#endif
-
 void fmt_to_string(benchmark::State& state) {
   auto dc = DigestChecker(state);
   for (auto s : state) {
@@ -526,5 +502,28 @@ void stout_ltoa(benchmark::State& state) {
   }
 }
 BENCHMARK(stout_ltoa);
+
+#if __cpp_lib_concepts>=201907L
+void fast_io_concat(benchmark::State& state) {
+  auto dc = DigestChecker(state);
+  for (auto s : state) {
+    for (auto value : data) {
+      dc.add(fast_io::concat(value));
+    }
+  }
+}
+BENCHMARK(fast_io_concat);
+void fast_io_print_reserve(benchmark::State& state) {
+//  fast_io::ostring_ref ostr(str);
+  auto dc = DigestChecker(state);
+  for (auto s : state) {
+    for (auto value : data) {
+      auto rsv(fast_io::print_reserve(value));
+      dc.add({rsv.data(),rsv.size()});
+    }
+  }
+}
+BENCHMARK(fast_io_print_reserve);
+#endif
 
 BENCHMARK_MAIN();
