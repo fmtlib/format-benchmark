@@ -50,8 +50,6 @@ Sample results on macOS with clang and libc++:
 
 Other benchmarks running on provided by fast_io author. On Linux with libstdc++, GCC-11 C++20. Running on clang + apple is bad since libc++ is extremely slow compared to libstdc++. Apple is also not mainstream platform. Think of how apple exploits workers in 3rd world.
 
-BTW, I will also provide a file benchmark to let you guys see why format_int makes no sense in real world.
-
 .. code::
 
 	cqwrteur@DESKTOP-C4VAUFM:~/format-benchmark/build$ ./int-benchmark
@@ -98,6 +96,58 @@ BTW, I will also provide a file benchmark to let you guys see why format_int mak
 	fast_io_concat          11085544 ns     11085565 ns           63 items_per_second=90.2074M/s
 	fast_io_print_reserve    9506848 ns      9506866 ns           73 items_per_second=105.187M/s
 
+
+BTW, I will also provide a file benchmark to let you guys see why format_int makes no sense in real world. format_int writes data backward, which means it can never be used for high-performance formatted I/O. It can neither in-place construct std::string.
+
+.. code::
+
+	cqwrteur@DESKTOP-C4VAUFM:~/format-benchmark/build/fileb$ ../file-int-benchmark
+	The number of values by digit count:
+	1  27518
+	2 246950
+	3 450053
+	4 247697
+	5  25016
+	6   2491
+	7    249
+	8     25
+	9      0
+	10      1
+	2020-06-21T10:25:13-04:00
+	Running ../file-int-benchmark
+	Run on (12 X 3593.26 MHz CPU s)
+	CPU Caches:
+	L1 Data 32 KiB (x6)
+	L1 Instruction 32 KiB (x6)
+	L2 Unified 512 KiB (x6)
+	L3 Unified 16384 KiB (x1)
+	Load Average: 0.00, 0.04, 0.23
+	----------------------------------------------------------------
+	Benchmark                      Time             CPU   Iterations
+	----------------------------------------------------------------
+	fprintf                 64107364 ns     64106119 ns           11
+	std_ofstream            60662327 ns     60662397 ns           11
+	fmt_print               50619350 ns     50618835 ns           14
+	std_to_chars            13745430 ns     13745453 ns           50
+	fmt_to_string           19279941 ns     19279726 ns           37
+	fmt_format_runtime      41865575 ns     41864968 ns           16
+	fmt_format_compile      22275384 ns     22275375 ns           32
+	fmt_format_to_runtime   28825158 ns     28824894 ns           24
+	fmt_format_to_compile   14296560 ns     14296560 ns           48
+	fmt_format_int          13562310 ns     13562309 ns           51
+	boost_lexical_cast      33195733 ns     33174949 ns           21
+	boost_format           241966400 ns    241964154 ns            3
+	boost_karma_generate    14441921 ns     14441750 ns           48
+	voigt_itostr            20043046 ns     20042388 ns           35
+	u2985907                13534979 ns     13534671 ns           52
+	u2985907_correct        10393649 ns     10388901 ns           67
+	std_to_chars_fast       10851778 ns     10851776 ns           64
+	decimal_from            14454558 ns     14454380 ns           48
+	stout_ltoa              22757248 ns     22757236 ns           31
+	fast_io_concat          14376316 ns     14376320 ns           49
+	fast_io_concatln        14233867 ns     14233865 ns           48
+	fast_io_print_reserve   13492135 ns     13492138 ns           51
+	fast_io_println         10339622 ns     10339623 ns           67
 
 concat benchmark
 
@@ -224,30 +274,3 @@ It looks fmt's benchmark's data set deliberately ruins cache locality of jiaendu
 	fast_io_concatln        13483156 ns     13473767 ns           52
 	fast_io_print_reserve   12277633 ns     12277631 ns           57
 	fast_io_println          6885923 ns      6885925 ns          106
-
-
-.. code::
-
-	cqwrteur@DESKTOP-C4VAUFM:~/format-benchmark/build$ ./concat-benchmark
-	2020-06-21T10:17:13-04:00
-	Running ./concat-benchmark
-	Run on (12 X 3593.26 MHz CPU s)
-	CPU Caches:
-	L1 Data 32 KiB (x6)
-	L1 Instruction 32 KiB (x6)
-	L2 Unified 512 KiB (x6)
-	L3 Unified 16384 KiB (x1)
-	Load Average: 0.14, 0.24, 0.40
-	------------------------------------------------------------
-	Benchmark                  Time             CPU   Iterations
-	------------------------------------------------------------
-	naive                   87.9 ns         87.9 ns      7922377
-	append                  61.5 ns         61.5 ns     11420470
-	appendWithReserve       42.1 ns         42.1 ns     16927493
-	format_compile          74.2 ns         74.2 ns      9445351
-	format_runtime           113 ns          113 ns      6153164
-	format_to               85.5 ns         85.5 ns      8221508
-	fast_io_print           22.6 ns         22.6 ns     30832719
-	fast_io_concat          65.8 ns         65.8 ns     10479647
-	nullop                 0.254 ns        0.254 ns   1000000000
-
