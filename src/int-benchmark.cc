@@ -20,7 +20,7 @@
 #include <string>
 #include <vector>
 
-#ifdef __cpp_lib_concepts>=201907L
+#if __cpp_lib_concepts>=201907L
 #include "../fast_io/include/fast_io.h"
 #endif
 
@@ -502,7 +502,7 @@ void stout_ltoa(benchmark::State& state) {
 }
 BENCHMARK(stout_ltoa);
 
-#ifdef __cpp_lib_concepts>=201907L
+#if __cpp_lib_concepts>=201907L
 void fast_io_concat(benchmark::State& state) {
   auto dc = DigestChecker(state);
   for (auto s : state) {

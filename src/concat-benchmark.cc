@@ -1,7 +1,7 @@
 #include <benchmark/benchmark.h>
 #include <fmt/compile.h>
 
-#ifdef __cpp_lib_concepts>=201907L
+#if __cpp_lib_concepts>=201907L
 #include "../fast_io/include/fast_io.h"
 #endif
 
@@ -93,7 +93,7 @@ void format_to(benchmark::State& state) {
   }
 }
 BENCHMARK(format_to);
-#ifdef __cpp_lib_concepts>=201907L
+#if __cpp_lib_concepts>=201907L
 void fast_io_print(benchmark::State& state) {
   benchmark::ClobberMemory();
   for (auto _ : state) {
