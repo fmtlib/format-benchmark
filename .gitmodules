@@ -4,3 +4,6 @@
 [submodule "benchmark"]
 	path = benchmark
 	url = https://github.com/google/benchmark.git
+[submodule "fast_io"]
+	path = fast_io
+	url = https://github.com/expnkx/fast_io
