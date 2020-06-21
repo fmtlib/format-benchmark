@@ -1,6 +1,10 @@
 #include <benchmark/benchmark.h>
 #include <fmt/compile.h>
 
+#if __cpp_lib_concepts>=201907L
+#include "../fast_io/include/fast_io.h"
+#endif
+
 #include <string>
 
 std::string str1 = "label";
@@ -89,6 +93,25 @@ void format_to(benchmark::State& state) {
   }
 }
 BENCHMARK(format_to);
+#if __cpp_lib_concepts>=201907L
+void fast_io_print(benchmark::State& state) {
+  benchmark::ClobberMemory();
+  for (auto _ : state) {
+    fast_io::internal_temporary_buffer<char> output;
+    print(output, "Result: ",str1,": (",str2,",",str3,",",str4,",",str5,")");
+    benchmark::DoNotOptimize(obuffer_begin(output));
+  }
+}
+BENCHMARK(fast_io_print);
+void fast_io_concat(benchmark::State& state) {
+  benchmark::ClobberMemory();
+  for (auto _ : state) {
+    benchmark::DoNotOptimize(fast_io::concat("Result: ",str1,": (",str2,",",str3,",",str4,",",str5,")").data());
+  }
+}
+BENCHMARK(fast_io_concat);
+
+#endif
 
 void nullop(benchmark::State& state) {
   for (auto _ : state) {

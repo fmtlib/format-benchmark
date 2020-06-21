@@ -262,13 +262,8 @@ struct Data {
     // https://www.boost.org/doc/libs/1_63_0/libs/spirit/workbench/karma/int_generator.cpp
     // with rand replaced by uniform_int_distribution for consistent results
     // across platforms.
-    std::mt19937 gen;
-    std::uniform_int_distribution<unsigned> dist(
-        0, (std::numeric_limits<int>::max)());
-    std::generate(values.begin(), values.end(), [&]() {
-      int scale = dist(gen) / 100 + 1;
-      return static_cast<int>(dist(gen) * dist(gen)) / scale;
-    });
+    for(int i{};i!=values.size();++i)
+      values[i]=i;
     digest =
         std::accumulate(begin(), end(), unsigned(), [](unsigned lhs, int rhs) {
           char buffer[12];

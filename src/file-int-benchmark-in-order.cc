@@ -19,9 +19,11 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <fstream>
 
 #if __cpp_lib_concepts>=201907L
 #include "../fast_io/include/fast_io.h"
+#include "../fast_io/include/fast_io_device.h"
 #endif
 
 #include "itostr.cc"
@@ -262,13 +264,8 @@ struct Data {
     // https://www.boost.org/doc/libs/1_63_0/libs/spirit/workbench/karma/int_generator.cpp
     // with rand replaced by uniform_int_distribution for consistent results
     // across platforms.
-    std::mt19937 gen;
-    std::uniform_int_distribution<unsigned> dist(
-        0, (std::numeric_limits<int>::max)());
-    std::generate(values.begin(), values.end(), [&]() {
-      int scale = dist(gen) / 100 + 1;
-      return static_cast<int>(dist(gen) * dist(gen)) / scale;
-    });
+    for(int i{};i!=values.size();++i)
+      values[i]=i;
     digest =
         std::accumulate(begin(), end(), unsigned(), [](unsigned lhs, int rhs) {
           char buffer[12];
@@ -279,250 +276,293 @@ struct Data {
   }
 } data;
 
-struct DigestChecker {
-  benchmark::State& state;
-  unsigned digest = 0;
-
-  explicit DigestChecker(benchmark::State& s) : state(s) {}
-
-  ~DigestChecker() noexcept(false) {
-    if (digest != static_cast<unsigned>(state.iterations()) * data.digest)
-      throw std::logic_error("invalid length");
-    state.SetItemsProcessed(state.iterations() * data.values.size());
-    benchmark::DoNotOptimize(digest);
-  }
-
-  FMT_INLINE void add(fmt::string_view s) { digest += compute_digest(s); }
-};
-
-void sprintf(benchmark::State& state) {
-  auto dc = DigestChecker(state);
+void fprintf(benchmark::State& state) {
+  std::unique_ptr<FILE,decltype(std::fclose)*> fp(std::fopen("fprintf.txt","wb"),std::fclose);
   for (auto s : state) {
     for (auto value : data) {
-      char buffer[12];
-      unsigned size = std::sprintf(buffer, "%d", value);
-      dc.add({buffer, size});
+      std::fprintf(fp.get(), "%d\n", value);
     }
   }
 }
-BENCHMARK(sprintf);
+BENCHMARK(fprintf);
 
-void std_ostringstream(benchmark::State& state) {
-  auto dc = DigestChecker(state);
-  std::ostringstream os;
+void std_ofstream(benchmark::State& state) {
+  std::ofstream os("ofstream.txt",std::ofstream::binary);
   for (auto s : state) {
     for (auto value : data) {
-      os.str(std::string());
-      os << value;
-      std::string s = os.str();
-      dc.add(s);
+      os << value <<'\n';
     }
   }
 }
-BENCHMARK(std_ostringstream);
+BENCHMARK(std_ofstream);
 
-void std_to_string(benchmark::State& state) {
-  auto dc = DigestChecker(state);
+void fmt_print(benchmark::State& state) {
+  std::unique_ptr<FILE,decltype(std::fclose)*> fp(std::fopen("fmt_print.txt","wb"),std::fclose);
   for (auto s : state) {
     for (auto value : data) {
-      std::string s = std::to_string(value);
-      dc.add(s);
+      fmt::print(fp.get(),"{}\n", value);
     }
   }
 }
-BENCHMARK(std_to_string);
+BENCHMARK(fmt_print);
+
+
+#if __cpp_lib_concepts>=201907L
 
 void std_to_chars(benchmark::State& state) {
-  auto dc = DigestChecker(state);
+  fast_io::obuf_file obf("std_to_chars.txt");
   for (auto s : state) {
     for (auto value : data) {
-      char buffer[12];
+      char buffer[13];
       auto res = std::to_chars(buffer, buffer + sizeof(buffer), value);
-      unsigned size = res.ptr - buffer;
-      dc.add({buffer, size});
+      *res.ptr=u8'\n';
+      write(obf,buffer,++res.ptr);
     }
   }
 }
 BENCHMARK(std_to_chars);
 
 void fmt_to_string(benchmark::State& state) {
-  auto dc = DigestChecker(state);
+  fast_io::obuf_file obf("fmt_to_string.txt");
   for (auto s : state) {
     for (auto value : data) {
-      std::string s = fmt::to_string(value);
-      dc.add(s);
+      print(obf,fmt::to_string(value));
     }
   }
 }
 BENCHMARK(fmt_to_string);
 
 void fmt_format_runtime(benchmark::State& state) {
-  auto dc = DigestChecker(state);
+  fast_io::obuf_file obf("fmt_format_runtime.txt");
   for (auto s : state) {
     for (auto value : data) {
-      std::string s = fmt::format("{}", value);
-      dc.add(s);
+      print(obf,fmt::format("{}\n", value));
     }
   }
 }
 BENCHMARK(fmt_format_runtime);
 
 void fmt_format_compile(benchmark::State& state) {
-  auto dc = DigestChecker(state);
+  fast_io::obuf_file obf("fmt_format_runtime.txt");
   for (auto s : state) {
     for (auto value : data) {
-      std::string s = fmt::format(FMT_COMPILE("{}"), value);
-      dc.add(s);
+      print(obf,fmt::format(FMT_COMPILE("{}\n"), value));
     }
   }
 }
 BENCHMARK(fmt_format_compile);
 
 void fmt_format_to_runtime(benchmark::State& state) {
-  auto dc = DigestChecker(state);
+  fast_io::obuf_file obf("fmt_format_to_runtime.txt");
   for (auto s : state) {
     for (auto value : data) {
-      char buffer[12];
-      auto end = fmt::format_to(buffer, "{}", value);
-      unsigned size = end - buffer;
-      dc.add({buffer, size});
+      char buffer[13];
+      auto end = fmt::format_to(buffer, "{}\n", value);
+      write(obf,buffer,end);
     }
   }
 }
 BENCHMARK(fmt_format_to_runtime);
 
 void fmt_format_to_compile(benchmark::State& state) {
-  auto dc = DigestChecker(state);
+  fast_io::obuf_file obf("fmt_format_to_compile.txt");
   for (auto s : state) {
     for (auto value : data) {
-      char buffer[12];
+      char buffer[13];
       constexpr auto f = fmt::compile<int>(FMT_STRING("{}"));
       auto end = fmt::format_to(buffer, f, value);
-      unsigned size = end - buffer;
-      dc.add({buffer, size});
+      *end=u8'\n';
+      write(obf,buffer,++end);
     }
   }
 }
 BENCHMARK(fmt_format_to_compile);
 
 void fmt_format_int(benchmark::State& state) {
-  auto dc = DigestChecker(state);
+  fast_io::obuf_file obf("fmt_format_int.txt");
   for (auto s : state) {
     for (auto value : data) {
       auto f = fmt::format_int(value);
-      dc.add({f.data(), f.size()});
+      write(obf,f.data(),f.data()+f.size());
+      put(obf,u8'\n');
     }
   }
 }
 BENCHMARK(fmt_format_int);
 
 void boost_lexical_cast(benchmark::State& state) {
-  auto dc = DigestChecker(state);
+  fast_io::obuf_file obf("boost_lexical_cast.txt");
   for (auto s : state) {
     for (auto value : data) {
-      std::string s = boost::lexical_cast<std::string>(value);
-      dc.add(s);
+      println(obf,boost::lexical_cast<std::string>(value));
     }
   }
 }
 BENCHMARK(boost_lexical_cast);
 
 void boost_format(benchmark::State& state) {
-  auto dc = DigestChecker(state);
-  boost::format fmt("%d");
+  fast_io::obuf_file obf("boost_format.txt");
+  boost::format fmt("%d\n");
   for (auto s : state) {
     for (auto value : data) {
-      std::string s = boost::str(fmt % value);
-      dc.add(s);
+      print(obf,boost::str(fmt % value));
     }
   }
 }
 BENCHMARK(boost_format);
 
 void boost_karma_generate(benchmark::State& state) {
-  auto dc = DigestChecker(state);
+  fast_io::obuf_file obf("boost_karma_generate.txt");
   for (auto s : state) {
     for (auto value : data) {
-      char buffer[12];
+      char buffer[13];
       char* ptr = buffer;
       boost::spirit::karma::generate(ptr, boost::spirit::karma::int_, value);
-      unsigned size = ptr - buffer;
-      dc.add({buffer, size});
+      *ptr=u8'\n';
+      write(obf,buffer,++ptr);
     }
   }
 }
 BENCHMARK(boost_karma_generate);
 
 void voigt_itostr(benchmark::State& state) {
-  auto dc = DigestChecker(state);
+  fast_io::obuf_file obf("voigt_itostr.txt");
   for (auto s : state) {
     for (auto value : data) {
-      std::string s = itostr(value);
-      dc.add(s);
+      println(obf,itostr(value));
     }
   }
 }
 BENCHMARK(voigt_itostr);
 
+
+//THIS IS NOT THE CORRECT WAY FOR USING jiaendu
 void u2985907(benchmark::State& state) {
-  auto dc = DigestChecker(state);
+  fast_io::obuf_file obf("u2985907_itoa10.txt");
   for (auto s : state) {
     for (auto value : data) {
-      char buffer[12];
+      char buffer[13];
       unsigned size = u2985907_itoa10(value, buffer);
-      dc.add({buffer, size});
+      buffer[size]=u8'\n';
+      write(obf,buffer,buffer+(++size));
     }
   }
 }
 BENCHMARK(u2985907);
 
-void decimal_from(benchmark::State& state) {
-  auto dc = DigestChecker(state);
+void u2985907_correct(benchmark::State& state) {
+  fast_io::obuf_file obf("u2985907_itoa10_correct.txt");
   for (auto s : state) {
     for (auto value : data) {
-      char buffer[12];
+      auto ptr=oreserve(obf,13);
+      if(ptr)[[likely]]
+      {
+        unsigned size = u2985907_itoa10(value, ptr);
+        ptr[size]=u8'\n';
+        orelease(obf,ptr+(++size));
+      }
+      else
+      {
+        char buffer[13];
+        unsigned size = u2985907_itoa10(value, buffer);
+        buffer[size]=u8'\n';
+        write(obf,buffer,buffer+(++size));
+      }
+    }
+  }
+}
+BENCHMARK(u2985907_correct);
+
+void std_to_chars_fast(benchmark::State& state) {
+  fast_io::obuf_file obf("std_to_chars_fast.txt");
+  for (auto s : state) {
+    for (auto value : data) {
+      auto ptr=oreserve(obf,13);
+      if(ptr)[[likely]]
+      {
+        auto res = std::to_chars(ptr, ptr + 13, value);
+        *res.ptr=u8'\n';
+        orelease(obf,res.ptr+1);
+      }
+      else
+      {
+        char buffer[13];
+        auto res = std::to_chars(buffer, buffer + sizeof(buffer), value);
+        *res.ptr=u8'\n';
+        write(obf,buffer,res.ptr+1);
+      }
+    }
+  }
+}
+BENCHMARK(std_to_chars_fast);
+
+void decimal_from(benchmark::State& state) {
+  fast_io::obuf_file obf("decimal_from.txt");
+  for (auto s : state) {
+    for (auto value : data) {
+      char buffer[13];
       auto end = cppx::decimal_from(value, buffer);
-      unsigned size = end - buffer;
-      dc.add({buffer, size});
+      *end=u8'\n';
+      write(obf,buffer,++end);
     }
   }
 }
 BENCHMARK(decimal_from);
 
 void stout_ltoa(benchmark::State& state) {
-  auto dc = DigestChecker(state);
+  fast_io::obuf_file obf("stout_ltoa.txt");
   for (auto s : state) {
     for (auto value : data) {
       char buffer[12];
-      ltoa(value, buffer, 10);
+      ltoa(value, buffer, 12);
+      println(obf,fast_io::chvw(buffer));
       // ltoa doesn't give the size so this invokes strlen.
-      dc.add(buffer);
     }
   }
 }
 BENCHMARK(stout_ltoa);
 
-#if __cpp_lib_concepts>=201907L
 void fast_io_concat(benchmark::State& state) {
-  auto dc = DigestChecker(state);
+  fast_io::obuf_file obf("fast_io_concat.txt");
   for (auto s : state) {
     for (auto value : data) {
-      dc.add(fast_io::concat(value));
+      println(obf,fast_io::concat(value));
     }
   }
 }
 BENCHMARK(fast_io_concat);
+
+void fast_io_concatln(benchmark::State& state) {
+  fast_io::obuf_file obf("fast_io_concatln.txt");
+  for (auto s : state) {
+    for (auto value : data) {
+      print(obf,fast_io::concatln(value));
+    }
+  }
+}
+BENCHMARK(fast_io_concatln);
+
 void fast_io_print_reserve(benchmark::State& state) {
-//  fast_io::ostring_ref ostr(str);
-  auto dc = DigestChecker(state);
+  fast_io::obuf_file obf("fast_io_print_reserve.txt");
   for (auto s : state) {
     for (auto value : data) {
       auto rsv(fast_io::print_reserve(value));
-      dc.add({rsv.data(),rsv.size()});
+      write(obf,rsv.data(),rsv.data()+rsv.size());
+      put(obf,u8'\n');
     }
   }
 }
 BENCHMARK(fast_io_print_reserve);
+
+void fast_io_println(benchmark::State& state) {
+  fast_io::obuf_file obf("fast_io_println.txt");
+  for (auto s : state) {
+    for (auto value : data) {
+      println(obf,value);
+    }
+  }
+}
+BENCHMARK(fast_io_println);
 #endif
 
 BENCHMARK_MAIN();
