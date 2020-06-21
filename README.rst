@@ -46,3 +46,233 @@ Sample results on macOS with clang and libc++:
 	decimal_from           10555579 ns     10549531 ns           64 items_per_second=94.7909M/s
 	stout_ltoa             40028853 ns     40010824 ns           17 items_per_second=24.9932M/s
 
+
+
+Other benchmarks running on provided by fast_io author. On Linux with libstdc++, GCC-11 C++20.
+
+.. code::
+
+	cqwrteur@DESKTOP-C4VAUFM:~/format-benchmark/build$ ./int-benchmark
+	The number of values by digit count:
+	1  27518
+	2 246950
+	3 450053
+	4 247697
+	5  25016
+	6   2491
+	7    249
+	8     25
+	9      0
+	10      1
+	2020-06-21T08:21:27-04:00
+	Running ./int-benchmark
+	Run on (12 X 3593.26 MHz CPU s)
+	CPU Caches:
+	L1 Data 32 KiB (x6)
+	L1 Instruction 32 KiB (x6)
+	L2 Unified 512 KiB (x6)
+	L3 Unified 16384 KiB (x1)
+	Load Average: 0.31, 0.09, 0.17
+	--------------------------------------------------------------------------------
+	Benchmark                      Time             CPU   Iterations UserCounters...
+	--------------------------------------------------------------------------------
+	sprintf                 66180655 ns     66180815 ns           11 items_per_second=15.1101M/s
+	std_ostringstream       59197433 ns     59196831 ns           12 items_per_second=16.8928M/s
+	std_to_string           14227102 ns     14226740 ns           49 items_per_second=70.2902M/s
+	std_to_chars            10778731 ns     10778754 ns           64 items_per_second=92.7751M/s
+	fmt_to_string           15449511 ns     15449548 ns           46 items_per_second=64.7268M/s
+	fmt_format_runtime      25347564 ns     25347609 ns           28 items_per_second=39.4515M/s
+	fmt_format_compile      15521973 ns     15522015 ns           45 items_per_second=64.4246M/s
+	fmt_format_to_runtime   19493339 ns     19493384 ns           36 items_per_second=51.2995M/s
+	fmt_format_to_compile   11964826 ns     11964854 ns           58 items_per_second=83.5781M/s
+	fmt_format_int           9702564 ns      9702586 ns           72 items_per_second=103.065M/s
+	boost_lexical_cast      29437537 ns     29437599 ns           24 items_per_second=33.9702M/s
+	boost_format           259534333 ns    259534899 ns            3 items_per_second=3.85305M/s
+	boost_karma_generate    10422500 ns     10422529 ns           67 items_per_second=95.946M/s
+	voigt_itostr            16333445 ns     16333491 ns           42 items_per_second=61.2239M/s
+	u2985907                10527758 ns     10527785 ns           66 items_per_second=94.9867M/s
+	decimal_from            11788081 ns     11788109 ns           59 items_per_second=84.8312M/s
+	stout_ltoa              21071739 ns     21071791 ns           33 items_per_second=47.4568M/s
+	fast_io_concat          11085544 ns     11085565 ns           63 items_per_second=90.2074M/s
+	fast_io_print_reserve    9506848 ns      9506866 ns           73 items_per_second=105.187M/s
+
+
+BTW, we also provide a file benchmark by using fast_io so we can see our foramtting results.
+
+format_int writes data backward, which means it can never be used for high-performance formatted I/O. It can neither in-place construct std::string.
+
+.. code::
+
+	cqwrteur@DESKTOP-C4VAUFM:~/format-benchmark/build/fileb$ ../file-int-benchmark
+	The number of values by digit count:
+	1  27518
+	2 246950
+	3 450053
+	4 247697
+	5  25016
+	6   2491
+	7    249
+	8     25
+	9      0
+	10      1
+	2020-06-21T10:25:13-04:00
+	Running ../file-int-benchmark
+	Run on (12 X 3593.26 MHz CPU s)
+	CPU Caches:
+	L1 Data 32 KiB (x6)
+	L1 Instruction 32 KiB (x6)
+	L2 Unified 512 KiB (x6)
+	L3 Unified 16384 KiB (x1)
+	Load Average: 0.00, 0.04, 0.23
+	----------------------------------------------------------------
+	Benchmark                      Time             CPU   Iterations
+	----------------------------------------------------------------
+	fprintf                 64107364 ns     64106119 ns           11
+	std_ofstream            60662327 ns     60662397 ns           11
+	fmt_print               50619350 ns     50618835 ns           14
+	std_to_chars            13745430 ns     13745453 ns           50
+	fmt_to_string           19279941 ns     19279726 ns           37
+	fmt_format_runtime      41865575 ns     41864968 ns           16
+	fmt_format_compile      22275384 ns     22275375 ns           32
+	fmt_format_to_runtime   28825158 ns     28824894 ns           24
+	fmt_format_to_compile   14296560 ns     14296560 ns           48
+	fmt_format_int          13562310 ns     13562309 ns           51
+	boost_lexical_cast      33195733 ns     33174949 ns           21
+	boost_format           241966400 ns    241964154 ns            3
+	boost_karma_generate    14441921 ns     14441750 ns           48
+	voigt_itostr            20043046 ns     20042388 ns           35
+	u2985907                13534979 ns     13534671 ns           52
+	u2985907_correct        10393649 ns     10388901 ns           67
+	std_to_chars_fast       10851778 ns     10851776 ns           64
+	decimal_from            14454558 ns     14454380 ns           48
+	stout_ltoa              22757248 ns     22757236 ns           31
+	fast_io_concat          14376316 ns     14376320 ns           49
+	fast_io_concatln        14233867 ns     14233865 ns           48
+	fast_io_print_reserve   13492135 ns     13492138 ns           51
+	fast_io_println         10339622 ns     10339623 ns           67
+
+concat benchmark
+
+.. code::
+	cqwrteur@DESKTOP-C4VAUFM:~/format-benchmark/build$ ./concat-benchmark
+	2020-06-21T08:49:23-04:00
+	Running ./concat-benchmark
+	Run on (12 X 3593.26 MHz CPU s)
+	CPU Caches:
+	L1 Data 32 KiB (x6)
+	L1 Instruction 32 KiB (x6)
+	L2 Unified 512 KiB (x6)
+	L3 Unified 16384 KiB (x1)
+	Load Average: 1.65, 1.57, 0.68
+	------------------------------------------------------------
+	Benchmark                  Time             CPU   Iterations
+	------------------------------------------------------------
+	naive                   87.3 ns         87.3 ns      7980351
+	append                  61.1 ns         61.1 ns     11319732
+	appendWithReserve       41.8 ns         41.8 ns     16762382
+	format_compile          74.8 ns         74.8 ns      9358126
+	format_runtime           112 ns          112 ns      6235314
+	format_to               84.3 ns         84.3 ns      8146667
+	fast_io_print           23.3 ns         23.3 ns     30091614
+	fast_io_concat          66.4 ns         66.4 ns     10546989
+	nullop                 0.252 ns        0.252 ns   1000000000
+
+
+It looks fmt's benchmark's data set deliberately ruins cache locality of u2985907 (jiaendu) algorithm to promote his fmt lib. See this int benchmark in order. You can see u2985907 runs very well.
+
+.. code::
+
+	cqwrteur@DESKTOP-C4VAUFM:~/format-benchmark/build$ ./int-benchmark-in-order
+	The number of values by digit count:
+	1     10
+	2     90
+	3    900
+	4   9000
+	5  90000
+	6 900000
+	7      0
+	8      0
+	9      0
+	10      0
+	2020-06-21T10:08:22-04:00
+	Running ./int-benchmark-in-order
+	Run on (12 X 3593.26 MHz CPU s)
+	CPU Caches:
+	L1 Data 32 KiB (x6)
+	L1 Instruction 32 KiB (x6)
+	L2 Unified 512 KiB (x6)
+	L3 Unified 16384 KiB (x1)
+	Load Average: 0.42, 0.28, 0.55
+	--------------------------------------------------------------------------------
+	Benchmark                      Time             CPU   Iterations UserCounters...
+	--------------------------------------------------------------------------------
+	sprintf                 62320291 ns     62320479 ns           11 items_per_second=16.0461M/s
+	std_ostringstream       54647454 ns     54646801 ns           13 items_per_second=18.2993M/s
+	std_to_string            9350224 ns      9350126 ns           75 items_per_second=106.95M/s
+	std_to_chars             7519653 ns      7519667 ns           93 items_per_second=132.985M/s
+	fmt_to_string           11011169 ns     11011201 ns           62 items_per_second=90.8166M/s
+	fmt_format_runtime      22369400 ns     22369443 ns           31 items_per_second=44.7038M/s
+	fmt_format_compile      11017577 ns     11017598 ns           64 items_per_second=90.7639M/s
+	fmt_format_to_runtime   17233278 ns     17233323 ns           40 items_per_second=58.0271M/s
+	fmt_format_to_compile    7646626 ns      7646645 ns           92 items_per_second=130.776M/s
+	fmt_format_int           5806645 ns      5806657 ns          121 items_per_second=172.216M/s
+	boost_lexical_cast      24628418 ns     24628471 ns           28 items_per_second=40.6034M/s
+	boost_format           226440000 ns    226440589 ns            3 items_per_second=4.41617M/s
+	boost_karma_generate     9217050 ns      9217077 ns           76 items_per_second=108.494M/s
+	voigt_itostr            10767260 ns     10767286 ns           65 items_per_second=92.8739M/s
+	u2985907                 4781043 ns      4781053 ns          147 items_per_second=209.159M/s
+	decimal_from            10713470 ns     10713493 ns           66 items_per_second=93.3402M/s
+	stout_ltoa              26098837 ns     26098883 ns           27 items_per_second=38.3158M/s
+	fast_io_concat          10248196 ns     10248215 ns           68 items_per_second=97.578M/s
+	fast_io_print_reserve    5300714 ns      5300725 ns          133 items_per_second=188.653M/s
+
+
+.. code::
+
+	cqwrteur@DESKTOP-C4VAUFM:~/format-benchmark/build/fileb$ ../file-int-benchmark-in-order
+	The number of values by digit count:
+	1     10
+	2     90
+	3    900
+	4   9000
+	5  90000
+	6 900000
+	7      0
+	8      0
+	9      0
+	10      0
+	2020-06-21T10:14:33-04:00
+	Running ../file-int-benchmark-in-order
+	Run on (12 X 3593.26 MHz CPU s)
+	CPU Caches:
+	L1 Data 32 KiB (x6)
+	L1 Instruction 32 KiB (x6)
+	L2 Unified 512 KiB (x6)
+	L3 Unified 16384 KiB (x1)
+	Load Average: 0.18, 0.17, 0.40
+	----------------------------------------------------------------
+	Benchmark                      Time             CPU   Iterations
+	----------------------------------------------------------------
+	fprintf                 57592333 ns     57592426 ns           12
+	std_ofstream            55919308 ns     55919377 ns           12
+	fmt_print               42610800 ns     42610357 ns           17
+	std_to_chars            11397534 ns     11397338 ns           62
+	fmt_to_string           16661595 ns     16661393 ns           42
+	fmt_format_runtime      35192181 ns     35191612 ns           21
+	fmt_format_compile      19402943 ns     19402683 ns           35
+	fmt_format_to_runtime   26155774 ns     26139605 ns           27
+	fmt_format_to_compile   11257168 ns     11256815 ns           59
+	fmt_format_int          11861714 ns     11861545 ns           59
+	boost_lexical_cast      29049683 ns     29049091 ns           23
+	boost_format           241224867 ns    241225457 ns            3
+	boost_karma_generate    16753700 ns     16753511 ns           42
+	voigt_itostr            18430816 ns     18430585 ns           37
+	u2985907                10755685 ns     10755565 ns           66
+	u2985907_correct         7280822 ns      7280711 ns           93
+	std_to_chars_fast        8932342 ns      8932051 ns           80
+	decimal_from            14453468 ns     14453466 ns           47
+	stout_ltoa              30093805 ns     30093804 ns           22
+	fast_io_concat          14463548 ns     14463376 ns           48
+	fast_io_concatln        13483156 ns     13473767 ns           52
+	fast_io_print_reserve   12277633 ns     12277631 ns           57
+	fast_io_println          6885923 ns      6885925 ns          106
