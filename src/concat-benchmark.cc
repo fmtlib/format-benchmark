@@ -99,7 +99,7 @@ void fast_io_print(benchmark::State& state) {
   for (auto _ : state) {
     fast_io::internal_temporary_buffer<char> output;
     print(output, "Result: ",str1,": (",str2,",",str3,",",str4,",",str5,")");
-    benchmark::DoNotOptimize(output.data());
+    benchmark::DoNotOptimize(obuffer_begin(output));
   }
 }
 BENCHMARK(fast_io_print);
