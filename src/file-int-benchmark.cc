@@ -552,7 +552,7 @@ void fast_io_print_reserve(benchmark::State& state) {
   for (auto s : state) {
     for (auto value : data) {
       auto rsv(fast_io::print_reserve(value));
-      print(obf,rsv.data(),rsv.data()+rsv.size());
+      write(obf,rsv.data(),rsv.data()+rsv.size());
       put(obf,u8'\n');
     }
   }
