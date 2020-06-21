@@ -512,16 +512,16 @@ void fast_io_concat(benchmark::State& state) {
   }
 }
 BENCHMARK(fast_io_concat);
-
-void fast_io_ostring_ref(benchmark::State& state) {
+void fast_io_ospan(benchmark::State& state) {
   std::string str;
-  fast_io::ostring_ref ostr(str);
+  std::array<char,40> buffer;
+
+//  fast_io::ostring_ref ostr(str);
   auto dc = DigestChecker(state);
   for (auto s : state) {
     for (auto value : data) {
-      obuffer_set_curr(ostr,obuffer_begin(ostr));
-      print(ostr,value);
-      dc.add(str);
+      fast_io::ospan<char> osp(buffer);
+      print(osp,value);
     }
   }
 }
