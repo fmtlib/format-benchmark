@@ -31,3 +31,15 @@ add_executable(
     unnamed.cpp
     unrolledlut.cpp
     vc.cpp)
+
+if (APPLE)
+  execute_process(COMMAND sysctl -n machdep.cpu.brand_string
+                  OUTPUT_VARIABLE out)
+else ()
+  file(READ /proc/cpuinfo out)
+  string(REGEX REPLACE "(model name.*)" "\1" out "${out}")
+endif ()
+string(REGEX REPLACE
+        "(model name.*: )|[ |\n]+|(Intel\\(R\\))|\\(TM\\)|\\(R\\)|CPU" ""
+        out "${out}")
+target_compile_definitions(itoa-benchmark PRIVATE MACHINE="${out}")
