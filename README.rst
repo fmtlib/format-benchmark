@@ -3,7 +3,8 @@ A collection of formatting benchmarks
 
 * Speed, compile time and code bloat tests from
   `tinyformat <https://github.com/c42f/tinyformat>`__.
-* ``int-benchmark``: decimal integer to string conversion benchmark
+* ``int-benchmark``: decimal integer to string conversion benchmark from Boost Karma
+* ``itoa-benchmark``: decimal integer to string conversion benchmark by Milo Yip
 
 Building and running ``int-benchmark``:
 
