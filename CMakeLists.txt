@@ -14,7 +14,8 @@ set(CMAKE_MACOSX_RPATH ON)
 set(CMAKE_CXX_STANDARD 17)
 
 # Workaround a JCC bug in Intel CPUs:
-# https://www.intel.com/content/dam/support/us/en/documents/processors/mitigations-jump-conditional-code-erratum.pdf
+# https://www.intel.com/content/dam/support/us/en/documents/processors/
+# mitigations-jump-conditional-code-erratum.pdf
 # to get more reliable benchmark results.
 set(INTEL FALSE)
 if (APPLE)
@@ -152,3 +153,5 @@ target_link_libraries(concat-benchmark benchmark fmt)
 
 add_executable(find-pow10-benchmark find-pow10-benchmark.cc)
 target_link_libraries(find-pow10-benchmark benchmark)
+
+add_subdirectory(src/itoa-benchmark)
