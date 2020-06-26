@@ -4,6 +4,7 @@
 #include <cstring>
 #include <exception>
 #include <limits>
+#include <random>
 #include <string>
 #include <stdint.h>
 #include <stdlib.h>
@@ -184,7 +185,8 @@ private:
             }
             start = end;
         }
-        std::random_shuffle(mData, mData + kCount);
+        std::mt19937 gen;
+        std::shuffle(mData, mData + kCount, gen);
     }
 
     ~RandomData() {
