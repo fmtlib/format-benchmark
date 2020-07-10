@@ -108,23 +108,21 @@ void speedTest(const std::string& which)
 #ifdef HAVE_FORMAT
     else if(which == "format")
     {
-        // format version.
+        // fmt version.
         for(long i = 0; i < maxIter; ++i)
             fmt::print("{:.10f}:{:04}:{:+}:{}:{}:{}:%\n",
                 1.234, 42, 3.13, "str", (void*)1000, 'X');
     }
     else if(which == "fmt::compile")
     {
-        // fmt::compile version.
-        constexpr auto compiled_format =
-            fmt::compile<double, int, double, const char*, void*, char>(
-                FMT_STRING("{:.10f}:{:04}:{:+}:{}:{}:{}:%\n"));
+        // fmt version (compiled).
         for(long i = 0; i < maxIter; ++i)
         {
             char buf[100];
             //fmt::memory_buffer buf;
             auto finished_at = fmt::format_to(
-                buf, compiled_format, 1.234, 42, 3.13, "str", (void*)1000, 'X');
+                buf, FMT_COMPILE("{:.10f}:{:04}:{:+}:{}:{}:{}:%\n"),
+                1.234, 42, 3.13, "str", (void*)1000, 'X');
             *finished_at = '\0';
             std::puts(buf);
         }
