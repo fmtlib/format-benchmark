@@ -151,6 +151,9 @@ target_link_libraries(parse-benchmark benchmark fmt)
 add_executable(concat-benchmark src/concat-benchmark.cc)
 target_link_libraries(concat-benchmark benchmark fmt)
 
+add_executable(file-benchmark src/file-benchmark.cc)
+target_link_libraries(file-benchmark benchmark fmt)
+
 add_executable(find-pow10-benchmark find-pow10-benchmark.cc)
 target_link_libraries(find-pow10-benchmark benchmark)
 
