@@ -37,6 +37,27 @@ inline std::uint32_t digits10_clz(std::uint32_t n) {
   return t - (n < powers_of_10_u32[t]) + 1;
 }
 
+// Maps the result of bsr(n) to ceil(log10(n)).
+static const uint16_t bsr2log10[] = {
+  1, 1, 1,
+  2, 2, 2,
+  3, 3, 3,
+  4, 4, 4, 4,
+  5, 5, 5,
+  6, 6, 6,
+  7, 7, 7, 7,
+  8, 8, 8,
+  9, 9, 9,
+  10, 10, 10
+};
+
+// My version of digits10_clz that converts clz to bsr and uses two lookup
+// tables.
+inline std::uint32_t digits10_clz_zverovich(std::uint32_t n) {
+  auto t = bsr2log10[__builtin_clz(n | 1) ^ 31];
+  return t - (n < powers_of_10_u32[t - 1]);
+}
+
 // Return minimum number with the specified number of digits.
 inline std::uint32_t min_number(unsigned num_digits) {
   if (num_digits == 0 || num_digits > 10)

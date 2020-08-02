@@ -18,6 +18,7 @@ TEST(Digits10Test, Digits10) {
   test_digits10(digits10_naive);
   test_digits10(digits10_unroll4);
   test_digits10(digits10_clz);
+  test_digits10(digits10_clz_zverovich);
 }
 
 TEST(Digits10Test, MinNumber) {

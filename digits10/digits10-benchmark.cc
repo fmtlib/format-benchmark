@@ -20,4 +20,9 @@ static void clz(benchmark::State& state) {
 }
 BENCHMARK(clz)->Apply(num_digits);
 
+static void clz_zverovich(benchmark::State& state) {
+  run_benchmark(state, digits10_clz_zverovich);
+}
+BENCHMARK(clz_zverovich)->Apply(num_digits);
+
 BENCHMARK_MAIN();
