@@ -5,6 +5,16 @@ static void num_digits(benchmark::internal::Benchmark* b) {
     b->Arg(i);
 }
 
+static void clz_zverovich(benchmark::State& state) {
+  run_benchmark(state, digits10_clz_zverovich);
+}
+BENCHMARK(clz_zverovich)->Apply(num_digits);
+
+static void grisu(benchmark::State& state) {
+  run_benchmark(state, digits10_grisu);
+}
+BENCHMARK(grisu)->Apply(num_digits);
+
 static void naive(benchmark::State& state) {
   run_benchmark(state, digits10_naive);
 }
@@ -19,10 +29,5 @@ static void clz(benchmark::State& state) {
   run_benchmark(state, digits10_clz);
 }
 BENCHMARK(clz)->Apply(num_digits);
-
-static void clz_zverovich(benchmark::State& state) {
-  run_benchmark(state, digits10_clz_zverovich);
-}
-BENCHMARK(clz_zverovich)->Apply(num_digits);
 
 BENCHMARK_MAIN();

@@ -51,11 +51,38 @@ static const uint16_t bsr2log10[] = {
   10, 10, 10
 };
 
+static const uint32_t powers_of_10_u32_z[] = {
+  0,
+  0,
+  10,
+  100,
+  1000,
+  10000,
+  100000,
+  1000000,
+  10000000,
+  100000000,
+  1000000000
+};
+
 // My version of digits10_clz that converts clz to bsr and uses two lookup
 // tables.
 inline std::uint32_t digits10_clz_zverovich(std::uint32_t n) {
   auto t = bsr2log10[__builtin_clz(n | 1) ^ 31];
-  return t - (n < powers_of_10_u32[t - 1]);
+  return t - (n < powers_of_10_u32_z[t]);
+}
+
+inline int digits10_grisu(uint32_t n) {
+  if (n < 10) return 1;
+  if (n < 100) return 2;
+  if (n < 1000) return 3;
+  if (n < 10000) return 4;
+  if (n < 100000) return 5;
+  if (n < 1000000) return 6;
+  if (n < 10000000) return 7;
+  if (n < 100000000) return 8;
+  if (n < 1000000000) return 9;
+  return 10;
 }
 
 // Return minimum number with the specified number of digits.
