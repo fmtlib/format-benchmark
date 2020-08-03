@@ -13,7 +13,6 @@ add_executable(
     itoa_ljust.h
     itoa_ljust_impl.h
     lut.cpp
-    machine.h
     main.cpp
     msinttypes
     mwilson.cpp
