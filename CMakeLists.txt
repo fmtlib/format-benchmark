@@ -153,7 +153,12 @@ add_executable(vararg-benchmark vararg-benchmark.cc)
 target_link_libraries(vararg-benchmark benchmark fmt)
 
 add_executable(int-benchmark src/int-benchmark.cc)
-target_link_libraries(int-benchmark benchmark Boost::boost fmt)
+target_link_libraries(int-benchmark benchmark fmt)
+if(TARGET Boost::boost)
+  target_link_libraries(int-benchmark Boost::boost)
+  target_compile_options(int-benchmark -DHAVE_BOOST)
+endif()
+
 target_compile_features(int-benchmark PRIVATE cxx_relaxed_constexpr)
 
 add_executable(locale-benchmark src/locale-benchmark.cc)

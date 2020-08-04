@@ -7,9 +7,11 @@
 #include <fmt/compile.h>
 
 #include <algorithm>
+#ifdef HAVE_BOOST
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/include/karma.hpp>
+#endif
 #include <charconv>
 #include <cstdio>
 #include <cstdlib>
@@ -280,6 +282,7 @@ void fmt_format_int(benchmark::State& state) {
 }
 BENCHMARK(fmt_format_int);
 
+#ifdef HAVE_BOOST
 void boost_lexical_cast(benchmark::State& state) {
   auto dc = DigestChecker(state);
   for (auto s : state) {
@@ -316,6 +319,7 @@ void boost_karma_generate(benchmark::State& state) {
   }
 }
 BENCHMARK(boost_karma_generate);
+#endif
 
 void voigt_itostr(benchmark::State& state) {
   auto dc = DigestChecker(state);
