@@ -13,6 +13,8 @@ project(FORMAT_BENCHMARKS)
 set(CMAKE_MACOSX_RPATH ON)
 set(CMAKE_CXX_STANDARD 17)
 
+include(CheckCXXCompilerFlag)
+
 # Workaround a JCC bug in Intel CPUs:
 # https://www.intel.com/content/dam/support/us/en/documents/processors/
 # mitigations-jump-conditional-code-erratum.pdf
@@ -30,14 +32,26 @@ else ()
     set(INTEL TRUE)
   endif ()
 endif ()
+
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   # Ideally we should use -mbranches-within-32B-boundaries but it's not widely
   # available so at least align loops to prevent unrelated code changes from
   # affecting benchmark results.
   set(ALIGN_OPTIONS -mllvm -align-all-blocks=5)
-else ()
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  set(ALIGN_FUNCTION_BYTES 32)
+  set(ALIGN_OPTIONS -falign-functions=${ALIGN_FUNCTION_BYTES})
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
   set(ALIGN_OPTIONS -Wa,-mbranches-within-32B-boundaries)
 endif ()
+
+check_cxx_compiler_flag(${ALIGN_OPTIONS} ALIGN_OPTIONS_WORKS)
+if(NOT ALIGN_OPTIONS_WORKS)
+  set(ALIGN_OPTIONS)
+endif()
+
+
+
 message(STATUS "Align options: ${ALIGN_OPTIONS}")
 add_definitions(${ALIGN_OPTIONS})
 
