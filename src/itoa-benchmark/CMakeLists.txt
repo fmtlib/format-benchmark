@@ -1,3 +1,4 @@
+
 add_executable(
     itoa-benchmark
     amartin.cpp
@@ -34,11 +35,14 @@ add_executable(
 if (APPLE)
   execute_process(COMMAND sysctl -n machdep.cpu.brand_string
                   OUTPUT_VARIABLE out)
-else ()
+elseif(UNIX)
   file(READ /proc/cpuinfo out)
-  string(REGEX REPLACE "(model name.*)" "\1" out "${out}")
+  string(REGEX MATCH "(model name[^\n]*)" out "${out}")
 endif ()
+
 string(REGEX REPLACE
-        "(model name.*: )|[ |\n]+|(Intel\\(R\\))|\\(TM\\)|\\(R\\)|CPU" ""
+        "(model name.*: )|[ |\n]+|(Intel\\(R\\))|\\(TM\\)|\\(R\\)|CPU|@" ""
         out "${out}")
-target_compile_definitions(itoa-benchmark PRIVATE MACHINE="${out}")
+if(out)
+  target_compile_definitions(itoa-benchmark PRIVATE MACHINE="${out}")
+endif()
