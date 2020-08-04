@@ -19,19 +19,25 @@ include(CheckCXXCompilerFlag)
 # https://www.intel.com/content/dam/support/us/en/documents/processors/
 # mitigations-jump-conditional-code-erratum.pdf
 # to get more reliable benchmark results.
-set(INTEL FALSE)
-if (APPLE)
-  execute_process(COMMAND sysctl -n machdep.cpu.brand_string
-                  OUTPUT_VARIABLE out)
-  if (out MATCHES "Intel.*")
-    set(INTEL TRUE)
+
+if(NOT DEFINED INTEL)
+  if (APPLE)
+    execute_process(COMMAND sysctl -n machdep.cpu.brand_string
+                    OUTPUT_VARIABLE out)
+    if (out MATCHES "Intel.*")
+      option(INTEL "Are we compiling on/for an intel target?" ON)
+    endif ()
+  else ()
+    file(READ /proc/cpuinfo out)
+    if (out MATCHES "(.|\n)*GenuineIntel(.|\n)*")
+      option(INTEL "Are we compiling on/for an intel target?" ON)
+    endif ()
   endif ()
-else ()
-  file(READ /proc/cpuinfo out)
-  if (out MATCHES "(.|\n)*GenuineIntel(.|\n)*")
-    set(INTEL TRUE)
-  endif ()
-endif ()
+
+  # If already set to true, won't be modified
+      option(INTEL "Are we compiling on/for an intel target?" OFF)
+endif()
+
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   # Ideally we should use -mbranches-within-32B-boundaries but it's not widely
