@@ -262,8 +262,7 @@ void fmt_format_to_compile(benchmark::State& state) {
   for (auto s : state) {
     for (auto value : data) {
       char buffer[12];
-      constexpr auto f = fmt::compile<int>(FMT_STRING("{}"));
-      auto end = fmt::format_to(buffer, f, value);
+      auto end = fmt::format_to(buffer, FMT_COMPILE("{}"), value);
       unsigned size = end - buffer;
       dc.add({buffer, size});
     }
