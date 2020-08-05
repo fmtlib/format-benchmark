@@ -19,7 +19,7 @@ void fprintf(benchmark::State& state) {
   for (auto s : state) {
     auto f = fopen(removed(state, "/tmp/fprintf-test"), "wb");
     for (int i = 0; i < num_iters; ++i)
-      fprintf(f, "%d\n", test_data);
+      fprintf(f, "%s\n", test_data);
     fclose(f);
   }
 }
