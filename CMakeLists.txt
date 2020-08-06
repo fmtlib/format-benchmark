@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.1)
 
 # Set the default CMAKE_BUILD_TYPE to Release.
 # This should be done before the project command since the latter can set
@@ -13,31 +13,53 @@ project(FORMAT_BENCHMARKS)
 set(CMAKE_MACOSX_RPATH ON)
 set(CMAKE_CXX_STANDARD 17)
 
+include(CheckCXXCompilerFlag)
+
 # Workaround a JCC bug in Intel CPUs:
 # https://www.intel.com/content/dam/support/us/en/documents/processors/
 # mitigations-jump-conditional-code-erratum.pdf
 # to get more reliable benchmark results.
-set(INTEL FALSE)
-if (APPLE)
-  execute_process(COMMAND sysctl -n machdep.cpu.brand_string
-                  OUTPUT_VARIABLE out)
-  if (out MATCHES "Intel.*")
-    set(INTEL TRUE)
+
+if (NOT DEFINED INTEL)
+  set(_IS_INTEL_HOST OFF)
+  if (APPLE)
+    execute_process(COMMAND sysctl -n machdep.cpu.brand_string
+                    OUTPUT_VARIABLE out)
+    if (out MATCHES "Intel.*")
+      set(_IS_INTEL_HOST ON)
+    endif ()
+  else ()
+    file(READ /proc/cpuinfo out)
+    if (out MATCHES "(.|\n)*GenuineIntel(.|\n)*")
+      set(_IS_INTEL_HOST ON)
+    endif ()
   endif ()
-else ()
-  file(READ /proc/cpuinfo out)
-  if (out MATCHES "(.|\n)*GenuineIntel(.|\n)*")
-    set(INTEL TRUE)
+
+  option(INTEL "Are we compiling on/for an intel target?" ${_IS_INTEL_HOST})
+endif ()
+
+function(check_flags_and_append_on_success test_flags_var_name append_to_var)
+  check_cxx_compiler_flag("${${test_flags_var_name}_FLAGS}" ${test_flags_var_name}_WORKS)
+  if (${test_flags_var_name}_WORKS)
+    list(APPEND ${append_to_var} ${${test_flags_var_name}_FLAGS})
+    set(${append_to_var} ${${append_to_var}} PARENT_SCOPE)
   endif ()
+endfunction()
+
+# Ideally we should use -mbranches-within-32B-boundaries but it's not widely
+# available so at least align loops/functions as fallback to prevent unrelated
+# code changes from affecting benchmark results.
+set(ALIGN_ALL_BLOCKS_FLAGS -mllvm -align-all-blocks=5)
+set(ALIGN_32B_BOUNDARIES_FLAGS -Wa,-mbranches-within-32B-boundaries)
+set(ALIGN_FUNCTION_BYTES 32)
+set(ALIGN_FUNCTION_FLAGS -falign-functions=${ALIGN_FUNCTION_BYTES})
+
+check_flags_and_append_on_success(ALIGN_32B_BOUNDARIES ALIGN_OPTIONS)
+if (NOT ALIGN_32B_BOUNDARIES_WORKS)
+  check_flags_and_append_on_success(ALIGN_ALL_BLOCKS     ALIGN_OPTIONS)
+  check_flags_and_append_on_success(ALIGN_FUNCTION       ALIGN_OPTIONS)
 endif ()
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  # Ideally we should use -mbranches-within-32B-boundaries but it's not widely
-  # available so at least align loops to prevent unrelated code changes from
-  # affecting benchmark results.
-  set(ALIGN_OPTIONS -mllvm -align-all-blocks=5)
-else ()
-  set(ALIGN_OPTIONS -Wa,-mbranches-within-32B-boundaries)
-endif ()
+
 message(STATUS "Align options: ${ALIGN_OPTIONS}")
 add_definitions(${ALIGN_OPTIONS})
 
@@ -120,7 +142,7 @@ else()
   COMMAND @echo stb_sprintf timings:
   COMMAND @time -p ./tinyformat_speed_test stb_sprintf > /dev/null
 	DEPENDS tinyformat_speed_test)
-endif()
+endif ()
 
 add_custom_target(bloat-test
                   COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bloat-test.py -I${Boost_INCLUDE_DIRS}
@@ -139,7 +161,12 @@ add_executable(vararg-benchmark vararg-benchmark.cc)
 target_link_libraries(vararg-benchmark benchmark fmt)
 
 add_executable(int-benchmark src/int-benchmark.cc)
-target_link_libraries(int-benchmark benchmark Boost::boost fmt)
+target_link_libraries(int-benchmark benchmark fmt)
+if (TARGET Boost::boost)
+  target_link_libraries(int-benchmark Boost::boost)
+  target_compile_options(int-benchmark -DHAVE_BOOST)
+endif ()
+
 target_compile_features(int-benchmark PRIVATE cxx_relaxed_constexpr)
 
 add_executable(locale-benchmark src/locale-benchmark.cc)

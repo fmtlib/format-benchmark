@@ -63,7 +63,7 @@ FMT_CONSTEXPR const Char* parse_format_specs_z(const Char* begin,
 }
 
 class specs_handler_z
-    : public fmt::internal::specs_handler<fmt::format_parse_context,
+    : public fmt::detail::specs_handler<fmt::format_parse_context,
                                           fmt::format_context> {
  public:
   FMT_CONSTEXPR specs_handler_z(fmt::format_specs& specs,
@@ -83,11 +83,11 @@ void parse(benchmark::State& state) {
   auto arg_store = fmt::make_format_args(42.0);
   auto args = fmt::format_args(arg_store);
   auto ctx = fmt::format_context(
-      std::back_inserter(static_cast<fmt::internal::buffer<char>&>(buf)), args);
+      std::back_inserter(static_cast<fmt::detail::buffer<char>&>(buf)), args);
   auto specs = fmt::basic_format_specs<char>();
-  auto handler = fmt::internal::specs_handler(specs, parse_ctx, ctx);
+  auto handler = fmt::detail::specs_handler(specs, parse_ctx, ctx);
   while (state.KeepRunning()) {
-    fmt::internal::parse_format_specs(format_str.begin(), format_str.end(),
+    fmt::detail::parse_format_specs(format_str.begin(), format_str.end(),
                                       handler);
     benchmark::DoNotOptimize(specs.type);
   }
@@ -101,7 +101,7 @@ void parse_z(benchmark::State& state) {
   auto arg_store = fmt::make_format_args(42.0);
   auto args = fmt::format_args(arg_store);
   auto ctx = fmt::format_context(
-      std::back_inserter(static_cast<fmt::internal::buffer<char>&>(buf)), args);
+      std::back_inserter(static_cast<fmt::detail::buffer<char>&>(buf)), args);
   auto specs = fmt::basic_format_specs<char>();
   auto handler = specs_handler_z(specs, parse_ctx, ctx);
   while (state.KeepRunning()) {

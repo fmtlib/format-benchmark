@@ -7,9 +7,11 @@
 #include <fmt/compile.h>
 
 #include <algorithm>
+#ifdef HAVE_BOOST
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/include/karma.hpp>
+#endif
 #include <charconv>
 #include <cstdio>
 #include <cstdlib>
@@ -260,8 +262,7 @@ void fmt_format_to_compile(benchmark::State& state) {
   for (auto s : state) {
     for (auto value : data) {
       char buffer[12];
-      constexpr auto f = fmt::compile<int>(FMT_STRING("{}"));
-      auto end = fmt::format_to(buffer, f, value);
+      auto end = fmt::format_to(buffer, FMT_COMPILE("{}"), value);
       unsigned size = end - buffer;
       dc.add({buffer, size});
     }
@@ -280,6 +281,7 @@ void fmt_format_int(benchmark::State& state) {
 }
 BENCHMARK(fmt_format_int);
 
+#ifdef HAVE_BOOST
 void boost_lexical_cast(benchmark::State& state) {
   auto dc = DigestChecker(state);
   for (auto s : state) {
@@ -316,6 +318,7 @@ void boost_karma_generate(benchmark::State& state) {
   }
 }
 BENCHMARK(boost_karma_generate);
+#endif
 
 void voigt_itostr(benchmark::State& state) {
   auto dc = DigestChecker(state);
