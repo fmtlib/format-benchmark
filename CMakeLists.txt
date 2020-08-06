@@ -21,21 +21,21 @@ include(CheckCXXCompilerFlag)
 # to get more reliable benchmark results.
 
 if (NOT DEFINED INTEL)
+  set(_IS_INTEL_HOST OFF)
   if (APPLE)
     execute_process(COMMAND sysctl -n machdep.cpu.brand_string
                     OUTPUT_VARIABLE out)
     if (out MATCHES "Intel.*")
-      option(INTEL "Are we compiling on/for an intel target?" ON)
+      set(_IS_INTEL_HOST ON)
     endif ()
   else ()
     file(READ /proc/cpuinfo out)
     if (out MATCHES "(.|\n)*GenuineIntel(.|\n)*")
-      option(INTEL "Are we compiling on/for an intel target?" ON)
+      set(_IS_INTEL_HOST ON)
     endif ()
   endif ()
 
-  # If already set to true, won't be modified
-      option(INTEL "Are we compiling on/for an intel target?" OFF)
+  option(INTEL "Are we compiling on/for an intel target?" ${_IS_INTEL_HOST})
 endif ()
 
 function(check_flags_and_append_on_success test_flags_var_name append_to_var)
