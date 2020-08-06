@@ -35,14 +35,14 @@ add_executable(
 if (APPLE)
   execute_process(COMMAND sysctl -n machdep.cpu.brand_string
                   OUTPUT_VARIABLE out)
-elseif(UNIX)
+elseif (UNIX)
   file(READ /proc/cpuinfo out)
   string(REGEX MATCH "(model name[^\n]*)" out "${out}")
 endif ()
 
 string(REGEX REPLACE
-        "(model name.*: )|[ |\n]+|(Intel\\(R\\))|\\(TM\\)|\\(R\\)|CPU|@" ""
+        "(model name.*: )|[ |\n]+|(Intel\\(R\\))|\\(TM\\)|\\(R\\)|CPU" ""
         out "${out}")
-if(out)
+if (out)
   target_compile_definitions(itoa-benchmark PRIVATE MACHINE="${out}")
-endif()
+endif ()
