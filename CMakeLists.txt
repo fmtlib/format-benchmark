@@ -19,7 +19,6 @@ include(CheckCXXCompilerFlag)
 # https://www.intel.com/content/dam/support/us/en/documents/processors/
 # mitigations-jump-conditional-code-erratum.pdf
 # to get more reliable benchmark results.
-
 if (NOT DEFINED INTEL)
   set(_IS_INTEL_HOST OFF)
   if (APPLE)
@@ -34,12 +33,12 @@ if (NOT DEFINED INTEL)
       set(_IS_INTEL_HOST ON)
     endif ()
   endif ()
-
-  option(INTEL "Are we compiling on/for an intel target?" ${_IS_INTEL_HOST})
+  option(INTEL "Enable Intel JCC bug mitigation." ${_IS_INTEL_HOST})
 endif ()
 
 function(check_flags_and_append_on_success test_flags_var_name append_to_var)
-  check_cxx_compiler_flag("${${test_flags_var_name}_FLAGS}" ${test_flags_var_name}_WORKS)
+  check_cxx_compiler_flag("${${test_flags_var_name}_FLAGS}"
+                          ${test_flags_var_name}_WORKS)
   if (${test_flags_var_name}_WORKS)
     list(APPEND ${append_to_var} ${${test_flags_var_name}_FLAGS})
     set(${append_to_var} ${${append_to_var}} PARENT_SCOPE)
@@ -51,13 +50,12 @@ endfunction()
 # code changes from affecting benchmark results.
 set(ALIGN_ALL_BLOCKS_FLAGS -mllvm -align-all-blocks=5)
 set(ALIGN_32B_BOUNDARIES_FLAGS -Wa,-mbranches-within-32B-boundaries)
-set(ALIGN_FUNCTION_BYTES 32)
-set(ALIGN_FUNCTION_FLAGS -falign-functions=${ALIGN_FUNCTION_BYTES})
+set(ALIGN_FUNCTION_FLAGS -falign-functions=32)
 
 check_flags_and_append_on_success(ALIGN_32B_BOUNDARIES ALIGN_OPTIONS)
 if (NOT ALIGN_32B_BOUNDARIES_WORKS)
-  check_flags_and_append_on_success(ALIGN_ALL_BLOCKS     ALIGN_OPTIONS)
-  check_flags_and_append_on_success(ALIGN_FUNCTION       ALIGN_OPTIONS)
+  check_flags_and_append_on_success(ALIGN_ALL_BLOCKS ALIGN_OPTIONS)
+  check_flags_and_append_on_success(ALIGN_FUNCTION ALIGN_OPTIONS)
 endif ()
 
 message(STATUS "Align options: ${ALIGN_OPTIONS}")
@@ -164,7 +162,7 @@ add_executable(int-benchmark src/int-benchmark.cc)
 target_link_libraries(int-benchmark benchmark fmt)
 if (TARGET Boost::boost)
   target_link_libraries(int-benchmark Boost::boost)
-  target_compile_options(int-benchmark -DHAVE_BOOST)
+  target_compile_options(int-benchmark PRIVATE -DHAVE_BOOST)
 endif ()
 
 target_compile_features(int-benchmark PRIVATE cxx_relaxed_constexpr)
