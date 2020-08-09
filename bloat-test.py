@@ -113,7 +113,7 @@ void doFormat_a() {
 #endif
 '''
 
-prefix = '_bloat_test_tmp_'
+prefix = '/tmp/_bloat_test_tmp_'
 num_translation_units = 100
 
 # Remove old files.
@@ -183,7 +183,7 @@ def benchmark(flags):
   check_call(['strip', output_filename])
   result.stripped_size = os.stat(output_filename).st_size
   print('Stripped size: {}'.format(result.stripped_size))
-  p = Popen(['./' + output_filename], stdout=PIPE,
+  p = Popen([output_filename], stdout=PIPE,
             env={'LD_LIBRARY_PATH': 'fmt'})
   output = p.communicate()[0]
   global expected_output
