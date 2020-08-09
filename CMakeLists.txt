@@ -1,11 +1,21 @@
 cmake_minimum_required(VERSION 3.1)
 
+# Joins arguments and places the results in ${result_var}.
+function(join result_var)
+  set(result )
+  foreach (arg ${ARGN})
+    set(result "${result}${arg}")
+  endforeach ()
+  set(${result_var} "${result}" PARENT_SCOPE)
+endfunction()
+
 # Set the default CMAKE_BUILD_TYPE to Release.
 # This should be done before the project command since the latter can set
 # CMAKE_BUILD_TYPE itself (it does so for nmake).
-if (NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release CACHE STRING
-    "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel.")
+if (MASTER_PROJECT AND NOT CMAKE_BUILD_TYPE)
+  set_verbose(CMAKE_BUILD_TYPE Release CACHE STRING
+              "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or "
+              "CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel.")
 endif ()
 
 project(FORMAT_BENCHMARKS)
@@ -15,10 +25,6 @@ set(CMAKE_CXX_STANDARD 17)
 
 include(CheckCXXCompilerFlag)
 
-# Workaround a JCC bug in Intel CPUs:
-# https://www.intel.com/content/dam/support/us/en/documents/processors/
-# mitigations-jump-conditional-code-erratum.pdf
-# to get more reliable benchmark results.
 if (NOT DEFINED INTEL)
   set(_IS_INTEL_HOST OFF)
   if (APPLE)
@@ -45,13 +51,17 @@ function(check_flags_and_append_on_success test_flags_var_name append_to_var)
   endif ()
 endfunction()
 
+# Workaround a JCC bug in Intel CPUs:
+# https://www.intel.com/content/dam/support/us/en/documents/processors/
+# mitigations-jump-conditional-code-erratum.pdf
+# to get more reliable benchmark results.
+#
 # Ideally we should use -mbranches-within-32B-boundaries but it's not widely
 # available so at least align loops/functions as fallback to prevent unrelated
 # code changes from affecting benchmark results.
 set(ALIGN_ALL_BLOCKS_FLAGS -mllvm -align-all-blocks=5)
 set(ALIGN_32B_BOUNDARIES_FLAGS -Wa,-mbranches-within-32B-boundaries)
 set(ALIGN_FUNCTION_FLAGS -falign-functions=32)
-
 check_flags_and_append_on_success(ALIGN_32B_BOUNDARIES ALIGN_OPTIONS)
 if (NOT ALIGN_32B_BOUNDARIES_WORKS)
   check_flags_and_append_on_success(ALIGN_ALL_BLOCKS ALIGN_OPTIONS)
