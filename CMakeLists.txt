@@ -73,7 +73,6 @@ find_package(Boost)
 find_path(FOLLY_INCLUDE_DIR folly/Format.h)
 find_library(FOLLY_LIB folly)
 if (FOLLY_INCLUDE_DIR AND FOLLY_LIB)
-  add_definitions(-DHAVE_FOLLY)
   set(EXTRA_LIBS ${FOLLY_LIB})
 endif ()
 

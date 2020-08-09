@@ -18,8 +18,9 @@ namespace std { class type_info; }
 #  include <boost/format.hpp>
 #  define HAVE_BOOST
 #endif
-#ifdef HAVE_FOLLY
-# include <folly/Format.h>
+#if __has_include(<folly/Format.h>)
+#  include <folly/Format.h>
+#  define HAVE_FOLLY
 #endif
 #define STB_SPRINTF_IMPLEMENTATION
 #include "stb_sprintf.h"
