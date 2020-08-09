@@ -167,7 +167,7 @@ enable_testing()
 set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Disable benchmark tests.")
 add_subdirectory(benchmark)
 add_subdirectory(digits10)
-add_executable(vararg-benchmark vararg-benchmark.cc)
+add_executable(vararg-benchmark src/vararg-benchmark.cc)
 target_link_libraries(vararg-benchmark benchmark fmt)
 
 add_executable(int-benchmark src/int-benchmark.cc)
@@ -190,7 +190,7 @@ target_link_libraries(concat-benchmark benchmark fmt)
 add_executable(file-benchmark src/file-benchmark.cc)
 target_link_libraries(file-benchmark benchmark fmt)
 
-add_executable(find-pow10-benchmark find-pow10-benchmark.cc)
+add_executable(find-pow10-benchmark src/find-pow10-benchmark.cc)
 target_link_libraries(find-pow10-benchmark benchmark)
 
 add_subdirectory(src/itoa-benchmark)
