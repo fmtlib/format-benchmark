@@ -7,11 +7,6 @@
 #include <fmt/compile.h>
 
 #include <algorithm>
-#ifdef HAVE_BOOST
-#include <boost/format.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/spirit/include/karma.hpp>
-#endif
 #include <charconv>
 #include <cstdio>
 #include <cstdlib>
@@ -21,6 +16,13 @@
 #include <sstream>
 #include <string>
 #include <vector>
+
+#if __has_include(<boost/format.hpp>)
+#  include <boost/format.hpp>
+#  include <boost/lexical_cast.hpp>
+#  include <boost/spirit/include/karma.hpp>
+#  define HAVE_BOOST
+#endif
 
 #include "itostr.cc"
 #include "u2985907.h"

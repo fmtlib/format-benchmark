@@ -14,8 +14,9 @@ namespace std { class type_info; }
 # include "fmt/format.h"
 # include "fmt/compile.h"
 #endif
-#ifdef HAVE_BOOST
-# include <boost/format.hpp>
+#if __has_include(<boost/format.hpp>)
+#  include <boost/format.hpp>
+#  define HAVE_BOOST
 #endif
 #ifdef HAVE_FOLLY
 # include <folly/Format.h>
