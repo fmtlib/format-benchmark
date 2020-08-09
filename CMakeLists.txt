@@ -166,7 +166,16 @@ add_custom_target(variadic-test
 enable_testing()
 set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Disable benchmark tests.")
 add_subdirectory(benchmark)
-add_subdirectory(digits10)
+
+add_executable(digits10-benchmark src/digits10/digits10.cc
+               src/digits10/digits10.h src/digits10/digits10-benchmark.cc)
+target_link_libraries(digits10-benchmark benchmark)
+
+add_executable(digits10-test src/digits10/digits10.cc
+               src/digits10/digits10-test.cc)
+target_link_libraries(digits10-test gmock benchmark)
+add_test(digits10-test digits10-test)
+
 add_executable(vararg-benchmark src/vararg-benchmark.cc)
 target_link_libraries(vararg-benchmark benchmark fmt)
 
