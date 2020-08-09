@@ -155,7 +155,8 @@ else()
 endif ()
 
 add_custom_target(bloat-test
-                  COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bloat-test.py -I${Boost_INCLUDE_DIRS}
+                  COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bloat-test.py
+                          -I${Boost_INCLUDE_DIRS}
                   DEPENDS fmt)
 
 add_custom_target(variadic-test
