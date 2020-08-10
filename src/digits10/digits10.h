@@ -37,19 +37,16 @@ inline std::uint32_t digits10_clz(std::uint32_t n) {
   return t - (n < powers_of_10_u32[t]) + 1;
 }
 
-// Maps the result of bsr(n) to ceil(log10(n)).
-static const uint16_t bsr2log10[] = {
-  1, 1, 1,
-  2, 2, 2,
-  3, 3, 3,
-  4, 4, 4, 4,
-  5, 5, 5,
-  6, 6, 6,
-  7, 7, 7, 7,
-  8, 8, 8,
-  9, 9, 9,
-  10, 10, 10
-};
+// Maps bsr(n) to ceil(log10(pow(2, bsr(n) + 1) - 1)).
+// This is a function instead of an array to workaround a bug in GCC10 (#1810).
+inline uint16_t bsr2log10(int bsr) {
+  constexpr uint16_t data[] = {
+    1,  1,  1,  2,  2,  2,  3,  3,  3,  4,  4,  4,  4,  5,  5,  5,
+    6,  6,  6,  7,  7,  7,  7,  8,  8,  8,  9,  9,  9,  10, 10, 10,
+    10, 11, 11, 11, 12, 12, 12, 13, 13, 13, 13, 14, 14, 14, 15, 15,
+    15, 16, 16, 16, 16, 17, 17, 17, 18, 18, 18, 19, 19, 19, 19, 20};
+  return data[bsr];
+}
 
 static const uint32_t powers_of_10_u32_z[] = {
   0,
@@ -68,7 +65,7 @@ static const uint32_t powers_of_10_u32_z[] = {
 // My version of digits10_clz that converts clz to bsr and uses two lookup
 // tables.
 inline std::uint32_t digits10_clz_zverovich(std::uint32_t n) {
-  auto t = bsr2log10[__builtin_clz(n | 1) ^ 31];
+  auto t = bsr2log10(__builtin_clz(n | 1) ^ 31);
   return t - (n < powers_of_10_u32_z[t]);
 }
 
