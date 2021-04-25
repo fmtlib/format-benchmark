@@ -74,8 +74,8 @@ void doFormat_a() {
 // since this test doesn't use floating point numbers shave ~20kb
 #define STB_SPRINTF_NOFLOAT
 
-#include "stb_sprintf.h"
-#include "stdio.h"
+#include "src/stb_sprintf.h"
+#include <stdio.h>
 
 void doFormat_a() {
   char buf[100];
