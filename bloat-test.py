@@ -8,7 +8,7 @@ from __future__ import print_function
 import os, re, sys
 from contextlib import nested
 from glob import glob
-from subprocess import check_call, Popen, PIPE
+from subprocess import check_call, Popen, PIPE, CalledProcessError
 from timeit import timeit
 
 template = r'''
@@ -175,8 +175,11 @@ def benchmark(flags):
   command = 'check_call({})'.format(
     [compiler_path, '-std=c++14', '-o', output_filename, include_dir] + sources + flags)
   result = Result()
-  result.time = timeit(
-    command, setup = 'from subprocess import check_call', number = 1)
+  try:
+    result.time = timeit(
+      command, setup = 'from subprocess import check_call', number = 1)
+  except CalledProcessError:
+    return None
   print('Compile time: {:.2f}s'.format(result.time))
   result.size = os.stat(output_filename).st_size
   print('Size: {}'.format(result.size))
@@ -190,6 +193,7 @@ def benchmark(flags):
   if not expected_output:
     expected_output = output
   elif output != expected_output:
+    print(output)
     raise Exception("output doesn't match")
   sys.stdout.flush()
   return result
@@ -244,14 +248,21 @@ def print_table(table, *formats):
 def to_kib(n):
   return int(round(n / 1024.0))
 
+exclude_list = []
 NUM_RUNS = 3
 for config, flags in configs:
   results = {}
   for i in range(NUM_RUNS):
     for method, method_flags in methods:
+      if method in exclude_list:
+        continue
       print('Benchmarking', config, method)
       sys.stdout.flush()
       new_result = benchmark(flags + method_flags + sys.argv[1:])
+      if not new_result:
+        exclude_list.append(method)
+        print(method + ' is not available')
+        continue
       if method not in results:
         results[method] = new_result
         continue
@@ -265,6 +276,8 @@ for config, flags in configs:
     ('Method', 'Compile Time, s', 'Executable size, KiB', 'Stripped size, KiB')
   ]
   for method, method_flags in methods:
+    if method not in results:
+      continue
     result = results[method]
     table.append(
       (method, result.time, to_kib(result.size), to_kib(result.stripped_size)))
