@@ -191,7 +191,7 @@ target_link_libraries(digits10-benchmark benchmark)
 
 add_executable(digits10-test src/digits10/digits10.cc
                src/digits10/digits10-test.cc)
-target_link_libraries(digits10-test gmock benchmark)
+target_link_libraries(digits10-test gtest benchmark)
 add_test(digits10-test digits10-test)
 
 add_executable(vararg-benchmark src/vararg-benchmark.cc)
