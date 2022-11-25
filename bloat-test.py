@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Script to test how much bloating a large project will suffer when using
 # different formatting methods.
@@ -6,7 +6,7 @@
 
 from __future__ import print_function
 import os, re, sys
-from contextlib import nested
+from contextlib import ExitStack
 from glob import glob
 from subprocess import check_call, Popen, PIPE, CalledProcessError
 from timeit import timeit
@@ -128,8 +128,9 @@ for f in filenames:
 main_source = prefix + 'main.cc'
 main_header = prefix + 'all.h'
 sources = [main_source]
-with nested(open(main_source, 'w'), open(main_header, 'w')) as \
-     (main_file, header_file):
+with ExitStack() as stack:
+  main_file = stack.enter_context(open(main_source, 'w'))
+  header_file = stack.enter_context(open(main_header, 'w'))
   main_file.write(re.sub('^ +', '', '''
     #include "{}all.h"
 
