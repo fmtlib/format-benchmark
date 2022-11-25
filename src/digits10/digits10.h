@@ -9,6 +9,79 @@
 
 #include "benchmark/benchmark.h"
 
+#define FMT_POWERS_OF_10(factor)                                             \
+  factor * 10, (factor)*100, (factor)*1000, (factor)*10000, (factor)*100000, \
+      (factor)*1000000, (factor)*10000000, (factor)*100000000,               \
+      (factor)*1000000000
+
+// It is a separate function rather than a part of count_digits to workaround
+// the lack of static constexpr in constexpr functions.
+inline auto digits10_fmt64(uint64_t n) -> int {
+  // https://github.com/fmtlib/format-benchmark/blob/master/digits10
+  // Maps bsr(n) to ceil(log10(pow(2, bsr(n) + 1) - 1)).
+  static constexpr uint16_t bsr2log10[] = {
+      1,  1,  1,  2,  2,  2,  3,  3,  3,  4,  4,  4,  4,  5,  5,  5,
+      6,  6,  6,  7,  7,  7,  7,  8,  8,  8,  9,  9,  9,  10, 10, 10,
+      10, 11, 11, 11, 12, 12, 12, 13, 13, 13, 13, 14, 14, 14, 15, 15,
+      15, 16, 16, 16, 16, 17, 17, 17, 18, 18, 18, 19, 19, 19, 19, 20};
+  auto t = bsr2log10[__builtin_clzll(n | 1) ^ 63];
+  static constexpr const uint64_t zero_or_powers_of_10[] = {
+      0, 0, FMT_POWERS_OF_10(1U), FMT_POWERS_OF_10(1000000000ULL),
+      10000000000000000000ULL};
+  return t - (n < zero_or_powers_of_10[t]);
+}
+
+constexpr int floor_log10_pow2(int e) noexcept { return (e * 1262611) >> 22; }
+
+constexpr int ceil_log10_pow2(int e) noexcept {
+  return e == 0 ? 0 : floor_log10_pow2(e) + 1;
+}
+
+struct digit_count_table_holder_t {
+  std::uint64_t entry[64];
+};
+
+constexpr digit_count_table_holder_t generate_digit_count_table() {
+  digit_count_table_holder_t table{{}};
+  constexpr std::uint64_t pow10[] = {1ull,
+                                     10ull,
+                                     100ull,
+                                     1000ull,
+                                     1'0000ull,
+                                     10'0000ull,
+                                     100'0000ull,
+                                     1000'0000ull,
+                                     1'0000'0000ull,
+                                     10'0000'0000ull,
+                                     100'0000'0000ull,
+                                     1000'0000'0000ull,
+                                     1'0000'0000'0000ull,
+                                     10'0000'0000'0000ull,
+                                     100'0000'0000'0000ull,
+                                     1000'0000'0000'0000ull,
+                                     1'0000'0000'0000'0000ull,
+                                     10'0000'0000'0000'0000ull,
+                                     100'0000'0000'0000'0000ull,
+                                     1000'0000'0000'0000'0000ull};
+
+  for (int i = 0; i < 64; ++i) {
+    auto const ub = std::uint64_t(ceil_log10_pow2(i));
+    assert(ub <= 19);
+    table.entry[i] = ((ub + 1) << 52) - (pow10[ub] >> (i / 4));
+  }
+
+  return table;
+}
+
+constexpr inline auto digit_count_table = generate_digit_count_table();
+
+inline int floor_log2(std::uint64_t n) { return 63 ^ __builtin_clzll(n); }
+
+inline int digits10_jk_jeon(std::uint64_t n) {
+  auto clz = floor_log2(n);
+  return int((digit_count_table.entry[clz] + (n >> (clz / 4))) >> 52);
+}
+
 // It is a separate function rather than a part of count_digits to workaround
 // the lack of static constexpr in constexpr functions.
 inline uint64_t count_digits_inc(int n) {

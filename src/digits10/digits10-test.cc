@@ -1,13 +1,13 @@
 #include "digits10.h"
+
 #include <gmock/gmock.h>
 
 using std::uint32_t;
 
 void test_digits10(uint32_t (*digits10)(uint32_t n)) {
-  for (uint32_t i = 0; i < 10; ++i)
-    EXPECT_EQ(1u, digits10(i));
-  for (uint32_t i = 1, n = 1,
-      end = std::numeric_limits<uint32_t>::max() / 10; n <= end; ++i) {
+  for (uint32_t i = 0; i < 10; ++i) EXPECT_EQ(1u, digits10(i));
+  for (uint32_t i = 1, n = 1, end = std::numeric_limits<uint32_t>::max() / 10;
+       n <= end; ++i) {
     n *= 10;
     EXPECT_EQ(i, digits10(n - 1));
     EXPECT_EQ(i + 1, digits10(n));
@@ -51,7 +51,7 @@ TEST(Digits10Test, GenerateNumbers) {
   }
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

@@ -4,6 +4,16 @@ static void num_digits(benchmark::internal::Benchmark* b) {
   for (int i = 1; i <= 10; ++i) b->Arg(i);
 }
 
+static void fmt64(benchmark::State& state) {
+  run_benchmark(state, digits10_fmt64);
+}
+BENCHMARK(fmt64)->Apply(num_digits);
+
+static void jk_jeon(benchmark::State& state) {
+  run_benchmark(state, digits10_jk_jeon);
+}
+BENCHMARK(jk_jeon)->Apply(num_digits);
+
 static void willets(benchmark::State& state) {
   run_benchmark(state, digits10_willets);
 }

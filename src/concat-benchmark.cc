@@ -83,7 +83,7 @@ void format_to(benchmark::State& state) {
   benchmark::ClobberMemory();
   for (auto _ : state) {
     fmt::memory_buffer output;
-    fmt::format_to(output, "Result: {}: ({},{},{},{})", str1, str2, str3, str4,
+    fmt::format_to(std::back_inserter(output), "Result: {}: ({},{},{},{})", str1, str2, str3, str4,
                    str5);
     benchmark::DoNotOptimize(output.data());
   }
