@@ -97,8 +97,9 @@ add_subdirectory(fmt)
 
 find_package(Boost)
 
-find_path(FOLLY_INCLUDE_DIR folly/Format.h)
-find_library(FOLLY_LIB folly)
+set(FOLLY_DIR HINTS /Users/viz/homebrew/Cellar/folly/2022.11.14.00)
+find_path(FOLLY_INCLUDE_DIR folly/Format.h HINTS ${FOLLY_DIR}/include)
+find_library(FOLLY_LIB folly HINTS ${FOLLY_DIR}/lib)
 if (FOLLY_INCLUDE_DIR AND FOLLY_LIB)
   set(EXTRA_LIBS ${FOLLY_LIB})
 endif ()
