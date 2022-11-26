@@ -188,7 +188,7 @@ def benchmark(flags):
   result.stripped_size = os.stat(output_filename).st_size
   print('Stripped size: {}'.format(result.stripped_size))
   p = Popen([output_filename], stdout=PIPE,
-            env={'LD_LIBRARY_PATH': 'fmt'})
+            env={'LD_LIBRARY_PATH': 'fmt', 'DYLD_LIBRARY_PATH': 'fmt'})
   output = p.communicate()[0]
   global expected_output
   if not expected_output:
