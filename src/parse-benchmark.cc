@@ -4,30 +4,46 @@
 // All rights reserved.
 
 #include <benchmark/benchmark.h>
+#include <fmt/core.h>
 #include <fmt/format.h>
 
+namespace cur_version = fmt::v9;
+namespace cur_detail = cur_version::detail;
+
 template <typename Char, typename SpecHandler>
-FMT_CONSTEXPR const Char* parse_format_specs_z(const Char* begin,
-                                               const Char* end,
-                                               SpecHandler&& handler) {
-  if (begin == end || *begin == '}') return begin;
+FMT_CONSTEXPR FMT_INLINE auto parse_format_specs_z(const Char* begin,
+                                                 const Char* end,
+                                                 SpecHandler&& handler)
+    -> const Char* {
+  if (1 < end - begin && begin[1] == '}' && cur_detail::is_ascii_letter(*begin) &&
+      *begin != 'L') {
+    cur_version::presentation_type type = cur_detail::parse_presentation_type(*begin++);
+    if (type == cur_version::presentation_type::none)
+      handler.on_error("invalid type specifier");
+    handler.on_type(type);
+    return begin;
+  }
+
+  if (begin == end) return begin;
 
   begin = parse_align(begin, end, handler);
   if (begin == end) return begin;
 
   // Parse sign.
-  switch (static_cast<char>(*begin)) {
+  switch (cur_detail::to_ascii(*begin)) {
   case '+':
-    handler.on_plus();
+    handler.on_sign(cur_version::sign::plus);
     ++begin;
     break;
   case '-':
-    handler.on_minus();
+    handler.on_sign(cur_version::sign::minus);
     ++begin;
     break;
   case ' ':
-    handler.on_space();
+    handler.on_sign(cur_version::sign::space);
     ++begin;
+    break;
+  default:
     break;
   }
   if (begin == end) return begin;
@@ -55,20 +71,30 @@ FMT_CONSTEXPR const Char* parse_format_specs_z(const Char* begin,
   // Parse precision.
   if (*begin == '.') {
     begin = parse_precision(begin, end, handler);
+    if (begin == end) return begin;
+  }
+
+  if (*begin == 'L') {
+    handler.on_localized();
+    ++begin;
   }
 
   // Parse type.
-  if (begin != end && *begin != '}') handler.on_type(*begin++);
+  if (begin != end && *begin != '}') {
+    cur_version::presentation_type type = cur_detail::parse_presentation_type(*begin++);
+    if (type == cur_version::presentation_type::none)
+      handler.on_error("invalid type specifier");
+    handler.on_type(type);
+  }
   return begin;
 }
 
 class specs_handler_z
-    : public fmt::detail::specs_handler<fmt::format_parse_context,
-                                          fmt::format_context> {
+    : public cur_detail::specs_handler<char> {
  public:
-  FMT_CONSTEXPR specs_handler_z(fmt::format_specs& specs,
-                                fmt::format_parse_context& parse_ctx,
-                                fmt::format_context& ctx)
+  FMT_CONSTEXPR specs_handler_z(cur_version::format_specs& specs,
+                                cur_version::format_parse_context& parse_ctx,
+                                cur_version::format_context& ctx)
       : specs_handler(specs, parse_ctx, ctx) {}
 
   bool z = false;
@@ -85,7 +111,7 @@ void parse(benchmark::State& state) {
   auto ctx = fmt::format_context(
       std::back_inserter(static_cast<fmt::detail::buffer<char>&>(buf)), args);
   auto specs = fmt::basic_format_specs<char>();
-  auto handler = fmt::detail::specs_handler(specs, parse_ctx, ctx);
+  auto handler = cur_detail::specs_handler<char>(specs, parse_ctx, ctx);
   while (state.KeepRunning()) {
     fmt::detail::parse_format_specs(format_str.begin(), format_str.end(),
                                       handler);
