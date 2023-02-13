@@ -7,13 +7,14 @@
 #include <cstdio>
 #include <cstdlib>
 #include <limits>
+#include <locale>
 #include <numeric>
 #include <sstream>
 #include <string>
 #include <vector>
 
+#include <fmt/format.h>
 #include <benchmark/benchmark.h>
-#include <fmt/locale.h>
 
 struct separate_thousands : std::numpunct<char> {
   char do_thousands_sep() const { return ','; }
