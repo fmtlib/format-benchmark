@@ -96,9 +96,6 @@ void doFormat_a() {
 #   include "src/tinyformat.h"
 #   define PRINTF tfm::printf
 # else
-#  ifdef USE_STRING
-#   include <string>
-#  endif
 #   include <stdio.h>
 #   define PRINTF ::printf
 # endif
@@ -210,7 +207,6 @@ if not os.path.exists(fmt_library):
 
 methods = [
   ('printf'       , []),
-  ('printf+string', ['-DUSE_STRING']),
   ('IOStreams'    , ['-DUSE_IOSTREAMS']),
   ('fmt'          , ['-DUSE_FMT', '-Ifmt/include', fmt_library]),
   ('tinyformat'   , ['-DUSE_TINYFORMAT']),
