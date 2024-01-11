@@ -44,7 +44,7 @@ void doFormat_a() {
 
 #elif defined(USE_FMT)
 
-#include "fmt/core.h"
+#include "fmt/base.h"
 
 void doFormat_a() {
   fmt::print("{}\n", "somefile.cpp");
