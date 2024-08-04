@@ -95,7 +95,7 @@ set(BUILD_SHARED_LIBS ON CACHE BOOL
 set(FMT_TEST TRUE CACHE BOOL "Enable fmt tests")
 add_subdirectory(fmt)
 
-find_package(Boost)
+find_package(Boost CONFIG)
 
 set(FOLLY_DIR HINTS /Users/viz/homebrew/Cellar/folly/2022.11.14.00)
 find_path(FOLLY_INCLUDE_DIR folly/Format.h HINTS ${FOLLY_DIR}/include)
