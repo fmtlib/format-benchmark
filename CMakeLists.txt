@@ -218,4 +218,8 @@ target_link_libraries(file-benchmark benchmark fmt)
 add_executable(find-pow10-benchmark src/find-pow10-benchmark.cc)
 target_link_libraries(find-pow10-benchmark benchmark)
 
+add_executable(
+  remove-trailing-zeros-benchmark src/remove-trailing-zeros-benchmark.cc)
+target_link_libraries(remove-trailing-zeros-benchmark benchmark fmt)
+
 add_subdirectory(src/itoa-benchmark)
