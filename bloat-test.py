@@ -171,7 +171,7 @@ def benchmark(flags):
     os.remove(output_filename)
   include_dir = '-I' + os.path.dirname(os.path.realpath(__file__))
   command = 'check_call({})'.format(
-    [compiler_path, '-std=c++14', '-o', output_filename, include_dir] + sources + flags)
+    [compiler_path, '-std=c++17', '-o', output_filename, include_dir] + sources + flags)
   result = Result()
   try:
     result.time = timeit(
