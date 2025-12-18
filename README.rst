@@ -4,7 +4,7 @@ A collection of formatting benchmarks
 * Speed, compile time and code bloat tests from
   `tinyformat <https://github.com/c42f/tinyformat>`__.
 * ``int-benchmark``: decimal integer to string conversion benchmark from Boost Karma
-* ``itoa-benchmark``: decimal integer to string conversion benchmark by Milo Yip
+* ``itoa-benchmark``: decimal integer to string conversion benchmark by Milo Yip. See `<src/itoa-benchmark/readme.md>`__.
 
 Building and running ``int-benchmark``:
 
@@ -12,7 +12,13 @@ Building and running ``int-benchmark``:
 
    cmake .
    make
-   ./int-benchmarks
+   ./int-benchmark
+
+Alternatively (requires ``ninja``)::
+
+   cmake -G Ninja .
+   ninja int-benchmark
+   ./int-benchmark
 
 Sample results on macOS with clang and libc++:
 

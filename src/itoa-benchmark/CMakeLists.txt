@@ -9,6 +9,7 @@ add_executable(
     countlut.cpp
     digitslut.h
     folly.cpp
+    fmt.cpp
     itoa_jeaiii.cpp
     itoa_jeaiii_bind.cpp
     itoa_ljust.h
@@ -31,6 +32,7 @@ add_executable(
     unnamed.cpp
     unrolledlut.cpp
     vc.cpp)
+target_link_libraries(itoa-benchmark fmt)
 
 if (APPLE)
   execute_process(COMMAND sysctl -n machdep.cpu.brand_string
